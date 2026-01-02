@@ -31,8 +31,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
   type: WidgetType;
   size: 'small' | 'medium' | 'large' | 'wide' | 'tall';
   content: Record<string, unknown>;
+  map?: any;
 }> = {
-  link: {
+   link: {
     type: 'link',
     size: 'medium',
     content: {
@@ -87,6 +88,19 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
         platform: 'twitter' as const,
         username: 'replit',
         label: 'Twitter',
+      },
+    },
+  },
+  map: {
+    type: 'map',
+    size: 'medium',
+    content: {
+      type: 'map',
+      data: {
+        latitude: 40.7128,
+        longitude: -74.0060,
+        zoom: 12,
+        label: 'New York',
       },
     },
   },

@@ -6,12 +6,13 @@ import { WIDGET_TEMPLATES, WIDGET_SIZES } from '@/lib/widget-registry';
 import { generateId } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { 
-  Plus, Layout, Smartphone, Monitor, Eye, Save, 
-  Trash2, Copy, Palette, Link2, ArrowLeft,
+  Layout, Smartphone, Monitor, Eye, Save, 
+  Trash2, Palette, Link2, ArrowLeft,
   Image, Type, Video, Share2, MoreHorizontal
 } from 'lucide-react';
 import { Button, Input, Tabs } from '@/components/ui';
 import type { Widget, WidgetType } from '@/types';
+import type { WidgetSizeKey } from '@/lib/widget-registry';
 
 const WIDGET_ICONS: Record<WidgetType, React.ReactNode> = {
   link: <Link2 className="w-4 h-4" />,
@@ -60,25 +61,24 @@ function Canvas({ isMobile }: CanvasProps) {
     };
   };
 
-  const handleDragStart = (e: React.DragEvent, widgetId: string) => {
-    e.dataTransfer.setData('widgetId', widgetId);
-    e.dataTransfer.effectAllowed = 'move';
-    const element = e.currentTarget as HTMLElement;
-    element.classList.add('opacity-40');
+  const handleWidgetDragStart = (e: React.DragEvent, widgetId: string) => {
+    if (e.dataTransfer) {
+      e.dataTransfer.setData('widgetId', widgetId);
+      e.dataTransfer.effectAllowed = 'move';
+    }
   };
 
-  const handleDragEnd = (e: React.DragEvent) => {
-    const element = e.currentTarget as HTMLElement;
-    element.classList.remove('opacity-40');
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleWidgetDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+  const handleWidgetDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
+    if (!e.dataTransfer) return;
+    
     const draggedId = e.dataTransfer.getData('widgetId');
     const draggedIndex = page.widgets.findIndex(w => w.id === draggedId);
     
@@ -130,10 +130,9 @@ function Canvas({ isMobile }: CanvasProps) {
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                     draggable
-                    onDragStart={(e) => handleDragStart(e, widget.id)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, index)}
+                    onDragStart={(e) => handleWidgetDragStart(e as any, widget.id)}
+                    onDragOver={(e) => handleWidgetDragOver(e as any)}
+                    onDrop={(e) => handleWidgetDrop(e as any, index)}
                     className={cn(
                       'relative transition-all group',
                       'hover:scale-[1.02] cursor-grab active:cursor-grabbing'
@@ -318,75 +317,82 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
       content: {
         ...selectedWidget.content,
         data: {
-          ...selectedWidget.content.data,
+          ...(selectedWidget.content as any).data,
           [key]: value,
         },
-      },
+      } as any,
     });
   };
 
   const renderContentFields = () => {
     switch (selectedWidget.type) {
-      case 'link':
+      case 'link': {
+        const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
             <Input 
               label="URL" 
-              value={selectedWidget.content.data.url || ''} 
+              value={data.url || ''} 
               onChange={(e) => handleContentUpdate('url', e.target.value)} 
               placeholder="https://example.com"
             />
             <Input 
               label="Title" 
-              value={selectedWidget.content.data.title || ''} 
+              value={data.title || ''} 
               onChange={(e) => handleContentUpdate('title', e.target.value)} 
             />
             <Input 
               label="Description" 
-              value={selectedWidget.content.data.description || ''} 
+              value={data.description || ''} 
               onChange={(e) => handleContentUpdate('description', e.target.value)} 
             />
           </div>
         );
-      case 'video':
+      }
+      case 'video': {
+        const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
             <Input 
               label="Video URL (YouTube/Vimeo)" 
-              value={selectedWidget.content.data.url || ''} 
+              value={data.url || ''} 
               onChange={(e) => handleContentUpdate('url', e.target.value)} 
               placeholder="https://youtube.com/watch?v=..."
             />
             <Input 
               label="Title" 
-              value={selectedWidget.content.data.title || ''} 
+              value={data.title || ''} 
               onChange={(e) => handleContentUpdate('title', e.target.value)} 
             />
           </div>
         );
-      case 'image':
+      }
+      case 'image': {
+        const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
             <Input 
               label="Image URL" 
-              value={selectedWidget.content.data.url || ''} 
+              value={data.url || ''} 
               onChange={(e) => handleContentUpdate('url', e.target.value)} 
             />
             <Input 
               label="Alt Text" 
-              value={selectedWidget.content.data.alt || ''} 
+              value={data.alt || ''} 
               onChange={(e) => handleContentUpdate('alt', e.target.value)} 
             />
           </div>
         );
-      case 'text':
+      }
+      case 'text': {
+        const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
             <div className="space-y-1">
               <label className="block text-sm font-medium text-gray-700">Content</label>
               <textarea
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[100px]"
-                value={selectedWidget.content.data.content || ''}
+                value={data.content || ''}
                 onChange={(e) => handleContentUpdate('content', e.target.value)}
               />
             </div>
@@ -394,7 +400,7 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               <label className="text-xs text-gray-500 mb-1 block">Size</label>
               <select 
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={selectedWidget.content.data.size || 'medium'}
+                value={data.size || 'medium'}
                 onChange={(e) => handleContentUpdate('size', e.target.value)}
               >
                 <option value="small">Small</option>
@@ -404,14 +410,16 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
             </div>
           </div>
         );
-      case 'social':
+      }
+      case 'social': {
+        const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Platform</label>
               <select 
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={selectedWidget.content.data.platform || 'twitter'}
+                value={data.platform || 'twitter'}
                 onChange={(e) => handleContentUpdate('platform', e.target.value)}
               >
                 <option value="twitter">Twitter</option>
@@ -423,16 +431,17 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
             </div>
             <Input 
               label="Username/Handle" 
-              value={selectedWidget.content.data.username || ''} 
+              value={data.username || ''} 
               onChange={(e) => handleContentUpdate('username', e.target.value)} 
             />
             <Input 
               label="Label" 
-              value={selectedWidget.content.data.label || ''} 
+              value={data.label || ''} 
               onChange={(e) => handleContentUpdate('label', e.target.value)} 
             />
           </div>
         );
+      }
       default:
         return null;
     }
@@ -564,7 +573,7 @@ export function Editor() {
       type: template.type,
       size: template.size,
       position: { x: 0, y: page.widgets.length },
-      content: template.content,
+      content: template.content as any,
       style: {},
       viewport: 'both',
     };

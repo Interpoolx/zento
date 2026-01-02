@@ -179,6 +179,7 @@ interface EditorStore {
   setDirty: (dirty: boolean) => void;
   resetPage: () => void;
   loadPage: (page: Page) => void;
+  loadTemplate: (templateId: string) => void;
 }
 
 export const useEditorStore = create<EditorStore>()(
