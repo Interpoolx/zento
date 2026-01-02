@@ -1,14 +1,9 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Editor } from '@/components/editor/Editor';
 import { Button, Card } from '@/components/ui';
 import { Layout, Zap, ArrowRight, Palette, Globe, Github, Twitter, ExternalLink } from 'lucide-react';
 
 function LandingPage() {
-  const [isCreating, setIsCreating] = useState(false);
-
-  if (isCreating) {
-    return <Editor />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -22,7 +17,9 @@ function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost">Sign In</Button>
-            <Button onClick={() => setIsCreating(true)}>Get Started Free</Button>
+            <a href="/profile">
+              <Button>Get Started Free</Button>
+            </a>
           </div>
         </div>
       </header>
@@ -47,14 +44,16 @@ function LandingPage() {
               and connect with your audience.
             </p>
             <div className="flex items-center justify-center gap-4">
-              <Button size="lg" onClick={() => setIsCreating(true)}>
-                Create Your Page
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button variant="secondary" size="lg">
-                View Examples
-              </Button>
-            </div>
+               <a href="/profile">
+                 <Button size="lg">
+                   Create Your Page
+                   <ArrowRight className="w-5 h-5 ml-2" />
+                 </Button>
+               </a>
+               <Button variant="secondary" size="lg">
+                 View Examples
+               </Button>
+             </div>
           </div>
         </section>
 
@@ -106,14 +105,15 @@ function LandingPage() {
               <p className="text-lg text-white/80 mb-8">
                 Join thousands of creators who trust Zento for their personal pages.
               </p>
-              <Button 
-                size="lg" 
-                className="bg-white text-primary-600 hover:bg-gray-100"
-                onClick={() => setIsCreating(true)}
-              >
-                Get Started Free
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              <a href="/profile">
+                <Button 
+                  size="lg" 
+                  className="bg-white text-primary-600 hover:bg-gray-100"
+                >
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </a>
             </div>
           </div>
         </section>
@@ -144,4 +144,15 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/profile" element={<Editor />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
