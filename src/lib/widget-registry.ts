@@ -38,9 +38,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
     content: {
       type: 'link',
       data: {
-        url: 'https://example.com',
-        title: 'New Link',
-        description: 'Add a description',
+        url: 'https://bento.me',
+        title: 'Bento - Your personal page',
+        description: 'The easiest way to build a personal page that looks like this.',
       },
     },
   },
@@ -50,8 +50,8 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
     content: {
       type: 'image',
       data: {
-        url: 'https://images.unsplash.com/photo-1707343843437-caacff5cfa74?w=400&h=300&fit=crop',
-        alt: 'Image',
+        url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80',
+        alt: 'Abstract Design',
       },
     },
   },
@@ -62,7 +62,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
       type: 'video',
       data: {
         url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        title: 'Video',
+        title: 'Never Gonna Give You Up',
       },
     },
   },
@@ -72,9 +72,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
     content: {
       type: 'text',
       data: {
-        content: 'Add your text here...',
-        size: 'medium' as const,
-        alignment: 'left' as const,
+        content: 'Building the future of personal pages. ✨',
+        size: 'large' as const,
+        alignment: 'center' as const,
       },
     },
   },
@@ -84,9 +84,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, {
     content: {
       type: 'social',
       data: {
-        platform: 'github' as const,
-        username: 'username',
-        label: 'Social Link',
+        platform: 'twitter' as const,
+        username: 'replit',
+        label: 'Twitter',
       },
     },
   },

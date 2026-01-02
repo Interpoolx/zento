@@ -300,6 +300,131 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
 
   if (!isOpen || !selectedWidget) return null;
 
+  const handleContentUpdate = (key: string, value: any) => {
+    updateWidget(selectedWidget.id, {
+      content: {
+        ...selectedWidget.content,
+        data: {
+          ...selectedWidget.content.data,
+          [key]: value,
+        },
+      },
+    });
+  };
+
+  const renderContentFields = () => {
+    switch (selectedWidget.type) {
+      case 'link':
+        return (
+          <div className="space-y-4">
+            <Input 
+              label="URL" 
+              value={selectedWidget.content.data.url || ''} 
+              onChange={(e) => handleContentUpdate('url', e.target.value)} 
+              placeholder="https://example.com"
+            />
+            <Input 
+              label="Title" 
+              value={selectedWidget.content.data.title || ''} 
+              onChange={(e) => handleContentUpdate('title', e.target.value)} 
+            />
+            <Input 
+              label="Description" 
+              value={selectedWidget.content.data.description || ''} 
+              onChange={(e) => handleContentUpdate('description', e.target.value)} 
+            />
+          </div>
+        );
+      case 'video':
+        return (
+          <div className="space-y-4">
+            <Input 
+              label="Video URL (YouTube/Vimeo)" 
+              value={selectedWidget.content.data.url || ''} 
+              onChange={(e) => handleContentUpdate('url', e.target.value)} 
+              placeholder="https://youtube.com/watch?v=..."
+            />
+            <Input 
+              label="Title" 
+              value={selectedWidget.content.data.title || ''} 
+              onChange={(e) => handleContentUpdate('title', e.target.value)} 
+            />
+          </div>
+        );
+      case 'image':
+        return (
+          <div className="space-y-4">
+            <Input 
+              label="Image URL" 
+              value={selectedWidget.content.data.url || ''} 
+              onChange={(e) => handleContentUpdate('url', e.target.value)} 
+            />
+            <Input 
+              label="Alt Text" 
+              value={selectedWidget.content.data.alt || ''} 
+              onChange={(e) => handleContentUpdate('alt', e.target.value)} 
+            />
+          </div>
+        );
+      case 'text':
+        return (
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">Content</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[100px]"
+                value={selectedWidget.content.data.content || ''}
+                onChange={(e) => handleContentUpdate('content', e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Size</label>
+              <select 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                value={selectedWidget.content.data.size || 'medium'}
+                onChange={(e) => handleContentUpdate('size', e.target.value)}
+              >
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+              </select>
+            </div>
+          </div>
+        );
+      case 'social':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Platform</label>
+              <select 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                value={selectedWidget.content.data.platform || 'twitter'}
+                onChange={(e) => handleContentUpdate('platform', e.target.value)}
+              >
+                <option value="twitter">Twitter</option>
+                <option value="github">GitHub</option>
+                <option value="instagram">Instagram</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="youtube">YouTube</option>
+              </select>
+            </div>
+            <Input 
+              label="Username/Handle" 
+              value={selectedWidget.content.data.username || ''} 
+              onChange={(e) => handleContentUpdate('username', e.target.value)} 
+            />
+            <Input 
+              label="Label" 
+              value={selectedWidget.content.data.label || ''} 
+              onChange={(e) => handleContentUpdate('label', e.target.value)} 
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full animate-slide-in">
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -313,7 +438,12 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
 
       <div className="flex-1 overflow-auto p-4 space-y-6">
         <div>
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
+          <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Content</h3>
+          {renderContentFields()}
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Size</h3>
           <div className="grid grid-cols-3 gap-2">
             {(['small', 'medium', 'large', 'wide', 'tall'] as const).map((size) => (
               <button
@@ -333,19 +463,52 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Style</h3>
+          <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Style</h3>
           <div className="space-y-3">
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Background</label>
-              <input type="color" className="w-full h-10 rounded-lg border border-gray-300" />
+              <input 
+                type="color" 
+                className="w-full h-10 rounded-lg border border-gray-300 p-1" 
+                value={selectedWidget.style.backgroundColor || '#ffffff'}
+                onChange={(e) => updateWidget(selectedWidget.id, { 
+                  style: { ...selectedWidget.style, backgroundColor: e.target.value } 
+                })}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Text Color</label>
+              <input 
+                type="color" 
+                className="w-full h-10 rounded-lg border border-gray-300 p-1" 
+                value={selectedWidget.style.textColor || '#000000'}
+                onChange={(e) => updateWidget(selectedWidget.id, { 
+                  style: { ...selectedWidget.style, textColor: e.target.value } 
+                })}
+              />
             </div>
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Border Radius</label>
-              <input type="range" min="0" max="24" className="w-full" />
+              <input 
+                type="range" 
+                min="0" 
+                max="48" 
+                className="w-full" 
+                value={selectedWidget.style.borderRadius ?? 24}
+                onChange={(e) => updateWidget(selectedWidget.id, { 
+                  style: { ...selectedWidget.style, borderRadius: parseInt(e.target.value) } 
+                })}
+              />
             </div>
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Shadow</label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+              <select 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                value={selectedWidget.style.shadow || 'none'}
+                onChange={(e) => updateWidget(selectedWidget.id, { 
+                  style: { ...selectedWidget.style, shadow: e.target.value as any } 
+                })}
+              >
                 <option value="none">None</option>
                 <option value="small">Small</option>
                 <option value="medium">Medium</option>
