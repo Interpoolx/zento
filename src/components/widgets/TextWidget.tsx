@@ -10,12 +10,6 @@ interface TextWidgetProps {
 }
 
 export function TextWidget({ content, style, isEditing, onClick }: TextWidgetProps) {
-  const sizeClasses = {
-    small: 'text-sm',
-    medium: 'text-base',
-    large: 'text-lg',
-  };
-
   const alignmentClasses = {
     left: 'text-left',
     center: 'text-center',
@@ -25,17 +19,18 @@ export function TextWidget({ content, style, isEditing, onClick }: TextWidgetPro
   return (
     <div
       className={cn(
-        'flex items-center justify-center h-full p-4',
-        isEditing && 'ring-2 ring-primary-500'
+        'flex flex-col h-full p-6',
+        isEditing && 'ring-2 ring-primary-500/20'
       )}
       style={style}
       onClick={onClick}
     >
       <div
         className={cn(
-          'whitespace-pre-wrap break-words',
-          sizeClasses[content.size || 'medium'],
-          alignmentClasses[content.alignment || 'left']
+          'whitespace-pre-wrap break-words font-bold tracking-tight',
+          content.size === 'small' ? 'text-sm' : content.size === 'large' ? 'text-3xl lg:text-4xl' : 'text-xl',
+          alignmentClasses[content.alignment || 'left'],
+          'leading-[1.1]'
         )}
         style={{ color: 'inherit' }}
       >

@@ -166,7 +166,7 @@ interface EditorStore {
   isPreviewMode: boolean;
   isMobileView: boolean;
   isDirty: boolean;
-  
+
   setPage: (page: Page) => void;
   updatePage: (updates: Partial<Page>) => void;
   selectWidget: (id: string | null) => void;
@@ -192,7 +192,7 @@ export const useEditorStore = create<EditorStore>()(
       isDirty: false,
 
       setPage: (page) => set({ page, isDirty: false }),
-      
+
       updatePage: (updates) => set((state) => ({
         page: { ...state.page, ...updates, updatedAt: new Date() },
         isDirty: true,
@@ -240,24 +240,28 @@ export const useEditorStore = create<EditorStore>()(
       })),
 
       setPreviewMode: (enabled) => set({ isPreviewMode: enabled, selectedWidgetId: null }),
-      
+
       setMobileView: (enabled) => set({ isMobileView: enabled }),
-      
+
       setDirty: (dirty) => set({ isDirty: dirty }),
-      
+
       resetPage: () => {
         const page = createDefaultPage();
         page.widgets = createDefaultWidgets();
         set({ page, selectedWidgetId: null, isDirty: false });
       },
-      
+
       loadPage: (page) => set({ page, selectedWidgetId: null, isDirty: false }),
 
       loadTemplate: (templateId: string) => {
         const page = createDefaultPage();
         page.layout.columns = 6;
-        
+
         switch (templateId) {
+          case 'blank':
+            page.title = 'New Page';
+            page.widgets = [];
+            break;
           case 'personal':
             page.title = 'Personal Profile';
             page.style = { ...page.style, backgroundColor: '#f0f9ff', fontColor: '#0f172a', widgetBorderRadius: 20 };

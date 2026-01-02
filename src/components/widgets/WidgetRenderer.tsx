@@ -16,14 +16,15 @@ interface WidgetRendererProps {
 
 export function WidgetRenderer({ widget, isEditing, isSelected, onSelect }: WidgetRendererProps) {
   const baseStyle: React.CSSProperties = {
-    borderRadius: widget.style.borderRadius ?? 24,
+    borderRadius: widget.style.borderRadius ?? 32,
     backgroundColor: widget.style.backgroundColor ?? '#ffffff',
     color: widget.style.textColor ?? 'inherit',
     borderColor: widget.style.borderColor,
-    boxShadow: widget.style.shadow === 'none' ? 'none' : 
-               widget.style.shadow === 'small' ? '0 1px 2px rgba(0,0,0,0.05)' :
-               widget.style.shadow === 'medium' ? '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)' :
-               widget.style.shadow === 'large' ? '0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02)' : undefined,
+    boxShadow: widget.style.shadow === 'none' ? 'none' :
+      widget.style.shadow === 'small' ? '0 2px 4px rgba(0,0,0,0.02), 0 1px 0 rgba(0,0,0,0.02)' :
+        widget.style.shadow === 'medium' ? '0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' :
+          widget.style.shadow === 'large' ? '0 40px 80px -15px rgba(0,0,0,0.1), 0 16px 24px -8px rgba(0,0,0,0.08)' : undefined,
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
   const renderContent = () => {
@@ -52,9 +53,9 @@ export function WidgetRenderer({ widget, isEditing, isSelected, onSelect }: Widg
   return (
     <div
       className={cn(
-        'relative w-full h-full transition-all duration-200',
-        isEditing && 'cursor-move',
-        isSelected && 'ring-2 ring-primary-500 ring-offset-2'
+        'relative w-full h-full group/widget transition-all duration-500',
+        isEditing && 'cursor-grab active:cursor-grabbing',
+        isSelected && 'ring-2 ring-primary-500 ring-offset-4 scale-[1.02]'
       )}
       onClick={(e) => {
         e.stopPropagation();

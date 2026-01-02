@@ -24,39 +24,48 @@ export function LinkWidget({ content, style, isEditing, onClick }: LinkWidgetPro
   return (
     <div
       className={cn(
-        'group relative overflow-hidden transition-all duration-300 cursor-pointer',
-        'hover:shadow-lg hover:-translate-y-0.5',
-        isEditing && 'ring-2 ring-primary-500'
+        'group relative overflow-hidden transition-all duration-500 cursor-pointer h-full',
+        'hover:scale-[1.01]',
+        isEditing && 'ring-2 ring-primary-500/20'
       )}
       style={style}
       onClick={onClick}
     >
-      <div className="flex items-center p-4 h-full">
+      <div className="flex flex-col p-6 h-full justify-between">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-10 h-10 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-110 transition-transform duration-500">
+                {faviconUrl ? (
+                  <img src={faviconUrl} alt="" className="w-6 h-6 object-contain" />
+                ) : (
+                  <div className="w-6 h-6 bg-primary-50 text-primary-500 flex items-center justify-center font-bold text-xs">
+                    {content.title.charAt(0)}
+                  </div>
+                )}
+              </div>
+              <h4 className="font-bold text-gray-900 truncate text-lg tracking-tight leading-none">{content.title}</h4>
+            </div>
+            {content.description && (
+              <p className="text-sm text-gray-500/80 font-medium line-clamp-2 leading-relaxed">{content.description}</p>
+            )}
+          </div>
+          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+            <svg className="w-4 h-4 text-gray-400 group-hover:text-primary-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </div>
+        </div>
+
         {content.imageUrl && (
-          <div className="flex-shrink-0 w-16 h-16 mr-4 overflow-hidden rounded-lg">
+          <div className="mt-4 w-full aspect-[2/1] overflow-hidden rounded-2xl border border-gray-100/50 shadow-inner">
             <img
               src={content.imageUrl}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
           </div>
         )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {faviconUrl && (
-              <img src={faviconUrl} alt="" className="w-4 h-4" />
-            )}
-            <h4 className="font-semibold text-gray-900 truncate">{content.title}</h4>
-          </div>
-          {content.description && (
-            <p className="text-sm text-gray-500 line-clamp-2">{content.description}</p>
-          )}
-        </div>
-        <div className="flex-shrink-0 ml-4">
-          <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
       </div>
     </div>
   );
