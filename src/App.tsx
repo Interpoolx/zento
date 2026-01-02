@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Editor } from '@/components/editor/Editor';
-import { Button } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
+import { Layout, Zap, ArrowRight, Palette, Globe, Github, Twitter, ExternalLink } from 'lucide-react';
 
 function LandingPage() {
   const [isCreating, setIsCreating] = useState(false);
