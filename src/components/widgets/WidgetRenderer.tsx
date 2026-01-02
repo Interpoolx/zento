@@ -33,7 +33,7 @@ export function WidgetRenderer({ widget, isEditing, isSelected, onSelect }: Widg
       case 'image':
         return <ImageWidget content={widget.content.data} style={baseStyle} isEditing={isEditing} onClick={onSelect} />;
       case 'video':
-        return <VideoWidget content={widget.content.data} style={baseStyle} isEditing={isEditing} onClick={onSelect} />;
+        return <VideoWidget content={widget.content.data} style={baseStyle} isEditing={isEditing} onClick={onSelect} aspectRatio={(widget.style as any).aspectRatio || '16/9'} />;
       case 'text':
         return <TextWidget content={widget.content.data} style={baseStyle} isEditing={isEditing} onClick={onSelect} />;
       case 'social':

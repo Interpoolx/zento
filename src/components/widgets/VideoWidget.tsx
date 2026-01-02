@@ -7,9 +7,10 @@ interface VideoWidgetProps {
   style?: React.CSSProperties;
   isEditing?: boolean;
   onClick?: () => void;
+  aspectRatio?: string;
 }
 
-export function VideoWidget({ content, style, isEditing, onClick }: VideoWidgetProps) {
+export function VideoWidget({ content, style, isEditing, onClick, aspectRatio = '16/9' }: VideoWidgetProps) {
   const getEmbedUrl = (url: string): string => {
     if (url.includes('youtube.com/watch')) {
       const videoId = url.split('v=')[1]?.split('&')[0];
@@ -30,13 +31,22 @@ export function VideoWidget({ content, style, isEditing, onClick }: VideoWidgetP
   const isVimeo = content.url.includes('vimeo');
   const embedUrl = getEmbedUrl(content.url);
 
+  const getAspectRatioPadding = (ratio: string) => {
+    const [w, h] = ratio.split('/').map(Number);
+    return (h / w) * 100;
+  };
+
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-gray-900 w-full h-full',
+        'relative overflow-hidden bg-gray-900 w-full',
         isEditing && 'ring-2 ring-primary-500'
       )}
-      style={style}
+      style={{
+        ...style,
+        paddingBottom: `${getAspectRatioPadding(aspectRatio)}%`,
+        height: 'auto'
+      }}
       onClick={onClick}
     >
       {(isYouTube || isVimeo) ? (

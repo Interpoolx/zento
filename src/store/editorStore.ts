@@ -366,6 +366,23 @@ export const useEditorStore = create<EditorStore>()(
               { id: 't10', type: 'social', size: 'medium', position: { x: 4, y: 5 }, content: { type: 'social', data: { platform: 'youtube', username: 'taylorswift', label: 'YouTube' } }, style: { backgroundColor: '#ff0000', textColor: '#fff' }, viewport: 'both' }
             ];
             break;
+          case 'dark':
+            page.title = 'Dark Minimalist';
+            page.style = { ...page.style, backgroundColor: '#0f0f0f', fontColor: '#ffffff', backgroundGradient: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)', widgetBorderRadius: 16 };
+            page.layout.columns = 6;
+            page.widgets = [
+              { id: 'd1', type: 'image', size: 'medium', position: { x: 2, y: 0 }, content: { type: 'image', data: { url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop', alt: 'Profile' } }, style: { borderRadius: 12, shadow: 'large' }, viewport: 'both' },
+              { id: 'd2', type: 'text', size: 'wide', position: { x: 0, y: 1 }, content: { type: 'text', data: { content: 'Professional Profile\nMinimalist & Modern', size: 'large', alignment: 'center' } }, style: { textColor: '#ffffff' }, viewport: 'both' },
+              { id: 'd3', type: 'link', size: 'wide', position: { x: 0, y: 2 }, content: { type: 'link', data: { url: '#', title: '📂 My Projects', description: 'Explore my recent work & achievements' } }, style: { backgroundColor: '#333333', textColor: '#fff', borderRadius: 12, shadow: 'small' }, viewport: 'both' },
+              { id: 'd4', type: 'link', size: 'wide', position: { x: 0, y: 3 }, content: { type: 'link', data: { url: '#', title: '📝 Blog', description: 'Latest articles & insights' } }, style: { backgroundColor: '#404040', textColor: '#fff', borderRadius: 12, shadow: 'small' }, viewport: 'both' },
+              { id: 'd5', type: 'link', size: 'wide', position: { x: 0, y: 4 }, content: { type: 'link', data: { url: '#', title: '💬 Contact', description: 'Get in touch with me' } }, style: { backgroundColor: '#505050', textColor: '#fff', borderRadius: 12, shadow: 'small' }, viewport: 'both' },
+              { id: 'd6', type: 'social', size: 'medium', position: { x: 0, y: 5 }, content: { type: 'social', data: { platform: 'twitter', username: 'user', label: '𝕏' } }, style: { backgroundColor: '#1a1a1a', textColor: '#fff', borderRadius: 12 }, viewport: 'both' },
+              { id: 'd7', type: 'social', size: 'medium', position: { x: 2, y: 5 }, content: { type: 'social', data: { platform: 'github', username: 'user', label: 'GitHub' } }, style: { backgroundColor: '#1a1a1a', textColor: '#fff', borderRadius: 12 }, viewport: 'both' },
+              { id: 'd8', type: 'social', size: 'medium', position: { x: 4, y: 5 }, content: { type: 'social', data: { platform: 'linkedin', username: 'user', label: 'LinkedIn' } }, style: { backgroundColor: '#1a1a1a', textColor: '#fff', borderRadius: 12 }, viewport: 'both' },
+              { id: 'd9', type: 'divider', size: 'wide', position: { x: 0, y: 6 }, content: { type: 'divider', data: {} }, style: {}, viewport: 'both' },
+              { id: 'd10', type: 'text', size: 'wide', position: { x: 0, y: 7 }, content: { type: 'text', data: { content: '© 2025 All rights reserved\n✨ Built with passion', size: 'medium', alignment: 'center' } }, style: { textColor: '#888888' }, viewport: 'both' }
+            ];
+            break;
           case 'elon':
             page.title = 'Elon Musk';
             page.style = { ...page.style, backgroundColor: '#09090b', fontColor: '#ffffff', backgroundGradient: 'linear-gradient(135deg, #09090b 0%, #1a1a2e 100%)', widgetBorderRadius: 12 };

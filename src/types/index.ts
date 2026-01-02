@@ -25,6 +25,8 @@ export interface WidgetStyle {
   textColor?: string;
   borderColor?: string;
   shadow?: 'none' | 'small' | 'medium' | 'large';
+  customClass?: string;
+  aspectRatio?: string;
 }
 
 export interface LinkWidgetContent {

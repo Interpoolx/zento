@@ -192,6 +192,7 @@ function Sidebar({ onAddWidget }: SidebarProps) {
     { id: 'business', name: '💼 Business Pro', color: 'bg-blue-200' },
     { id: 'linktree', name: '🔗 Link Hub', color: 'bg-pink-100' },
     { id: 'creative', name: '✨ Artist', color: 'bg-purple-100' },
+    { id: 'dark', name: '⬛ Dark Minimalist', color: 'bg-black' },
     { id: 'ronaldo', name: '⚽ Ronaldo', color: 'bg-yellow-100' },
     { id: 'taylor', name: '💜 Taylor Swift', color: 'bg-pink-200' },
     { id: 'elon', name: '🚀 Elon Musk', color: 'bg-green-100' },
@@ -368,6 +369,12 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               value={data.title || ''} 
               onChange={(e) => handleContentUpdate('title', e.target.value)} 
             />
+            <Input 
+              label="Thumbnail URL (Optional)" 
+              value={data.thumbnailUrl || ''} 
+              onChange={(e) => handleContentUpdate('thumbnailUrl', e.target.value)} 
+              placeholder="https://example.com/thumb.jpg"
+            />
           </div>
         );
       }
@@ -446,10 +453,57 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
           </div>
         );
       }
+      case 'map': {
+        const data = (selectedWidget.content as any).data || {};
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Latitude</label>
+              <input 
+                type="number" 
+                step="0.0001"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                value={data.latitude || 0} 
+                onChange={(e) => handleContentUpdate('latitude', parseFloat(e.target.value))} 
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Longitude</label>
+              <input 
+                type="number" 
+                step="0.0001"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                value={data.longitude || 0} 
+                onChange={(e) => handleContentUpdate('longitude', parseFloat(e.target.value))} 
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Zoom Level (1-20)</label>
+              <input 
+                type="range" 
+                min="1" 
+                max="20"
+                className="w-full" 
+                value={data.zoom || 12} 
+                onChange={(e) => handleContentUpdate('zoom', parseInt(e.target.value))} 
+              />
+              <span className="text-xs text-gray-600">{data.zoom || 12}</span>
+            </div>
+            <Input 
+              label="Location Label" 
+              value={data.label || ''} 
+              onChange={(e) => handleContentUpdate('label', e.target.value)} 
+              placeholder="e.g., New York"
+            />
+          </div>
+        );
+      }
       default:
         return null;
-    }
-  };
+      }
+      };
 
   return (
     <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full animate-slide-in">
@@ -489,60 +543,91 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Style</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Background</label>
-              <input 
-                type="color" 
-                className="w-full h-10 rounded-lg border border-gray-300 p-1" 
-                value={selectedWidget.style.backgroundColor || '#ffffff'}
-                onChange={(e) => updateWidget(selectedWidget.id, { 
-                  style: { ...selectedWidget.style, backgroundColor: e.target.value } 
-                })}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Text Color</label>
-              <input 
-                type="color" 
-                className="w-full h-10 rounded-lg border border-gray-300 p-1" 
-                value={selectedWidget.style.textColor || '#000000'}
-                onChange={(e) => updateWidget(selectedWidget.id, { 
-                  style: { ...selectedWidget.style, textColor: e.target.value } 
-                })}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Border Radius</label>
-              <input 
-                type="range" 
-                min="0" 
-                max="48" 
-                className="w-full" 
-                value={selectedWidget.style.borderRadius ?? 24}
-                onChange={(e) => updateWidget(selectedWidget.id, { 
-                  style: { ...selectedWidget.style, borderRadius: parseInt(e.target.value) } 
-                })}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Shadow</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={selectedWidget.style.shadow || 'none'}
-                onChange={(e) => updateWidget(selectedWidget.id, { 
-                  style: { ...selectedWidget.style, shadow: e.target.value as any } 
-                })}
-              >
-                <option value="none">None</option>
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-          </div>
-        </div>
+           <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Style</h3>
+           <div className="space-y-3">
+             <div>
+               <label className="text-xs text-gray-500 mb-1 block">Background</label>
+               <input 
+                 type="color" 
+                 className="w-full h-10 rounded-lg border border-gray-300 p-1" 
+                 value={selectedWidget.style.backgroundColor || '#ffffff'}
+                 onChange={(e) => updateWidget(selectedWidget.id, { 
+                   style: { ...selectedWidget.style, backgroundColor: e.target.value } 
+                 })}
+               />
+             </div>
+             <div>
+               <label className="text-xs text-gray-500 mb-1 block">Text Color</label>
+               <input 
+                 type="color" 
+                 className="w-full h-10 rounded-lg border border-gray-300 p-1" 
+                 value={selectedWidget.style.textColor || '#000000'}
+                 onChange={(e) => updateWidget(selectedWidget.id, { 
+                   style: { ...selectedWidget.style, textColor: e.target.value } 
+                 })}
+               />
+             </div>
+             <div>
+               <label className="text-xs text-gray-500 mb-1 block">Border Radius</label>
+               <input 
+                 type="range" 
+                 min="0" 
+                 max="48" 
+                 className="w-full" 
+                 value={selectedWidget.style.borderRadius ?? 24}
+                 onChange={(e) => updateWidget(selectedWidget.id, { 
+                   style: { ...selectedWidget.style, borderRadius: parseInt(e.target.value) } 
+                 })}
+               />
+             </div>
+             <div>
+               <label className="text-xs text-gray-500 mb-1 block">Shadow</label>
+               <select 
+                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                 value={selectedWidget.style.shadow || 'none'}
+                 onChange={(e) => updateWidget(selectedWidget.id, { 
+                   style: { ...selectedWidget.style, shadow: e.target.value as any } 
+                 })}
+               >
+                 <option value="none">None</option>
+                 <option value="small">Small</option>
+                 <option value="medium">Medium</option>
+                 <option value="large">Large</option>
+               </select>
+             </div>
+           </div>
+         </div>
+
+         <div>
+           <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Advanced</h3>
+           <div className="space-y-3">
+             <Input 
+               label="Custom CSS Class" 
+               value={(selectedWidget.style as any).customClass || ''} 
+               onChange={(e) => updateWidget(selectedWidget.id, { 
+                 style: { ...selectedWidget.style, customClass: e.target.value } 
+               })} 
+               placeholder="e.g., custom-class"
+             />
+             {selectedWidget.type === 'video' && (
+               <div>
+                 <label className="text-xs text-gray-500 mb-1 block">Aspect Ratio</label>
+                 <select 
+                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                   value={(selectedWidget.style as any).aspectRatio || '16/9'}
+                   onChange={(e) => updateWidget(selectedWidget.id, { 
+                     style: { ...selectedWidget.style, aspectRatio: e.target.value } 
+                   })}
+                 >
+                   <option value="16/9">16:9 (Wide)</option>
+                   <option value="4/3">4:3 (Standard)</option>
+                   <option value="1/1">1:1 (Square)</option>
+                   <option value="9/16">9:16 (Vertical)</option>
+                 </select>
+               </div>
+             )}
+           </div>
+         </div>
 
         <div className="pt-4 border-t border-gray-200">
           <Button variant="danger" className="w-full" onClick={() => {
