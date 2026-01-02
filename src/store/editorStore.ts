@@ -251,6 +251,51 @@ export const useEditorStore = create<EditorStore>()(
       },
       
       loadPage: (page) => set({ page, selectedWidgetId: null, isDirty: false }),
+
+      loadTemplate: (templateId: string) => {
+        const page = createDefaultPage();
+        page.title = `${templateId.charAt(0).toUpperCase() + templateId.slice(1)} Template`;
+        
+        switch (templateId) {
+          case 'personal':
+            page.widgets = [
+              { id: 'p1', type: 'image', size: 'small', position: { x: 0, y: 0 }, content: { type: 'image', data: { url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200', alt: 'Profile' } }, style: { borderRadius: 9999 }, viewport: 'both' },
+              { id: 'p2', type: 'text', size: 'medium', position: { x: 1, y: 0 }, content: { type: 'text', data: { content: 'Alex Rivera\nDesigner & Developer', size: 'large', alignment: 'left' } }, style: {}, viewport: 'both' },
+              { id: 'p3', type: 'social', size: 'medium', position: { x: 0, y: 1 }, content: { type: 'social', data: { platform: 'twitter', username: 'alexrivera', label: 'Twitter' } }, style: { backgroundColor: '#1da1f2', textColor: '#fff' }, viewport: 'both' },
+              { id: 'p4', type: 'link', size: 'large', position: { x: 0, y: 2 }, content: { type: 'link', data: { url: 'https://alex.dev', title: 'My Portfolio', description: 'See my latest work' } }, style: {}, viewport: 'both' }
+            ];
+            break;
+          case 'portfolio':
+            page.widgets = [
+              { id: 'pr1', type: 'text', size: 'wide', position: { x: 0, y: 0 }, content: { type: 'text', data: { content: 'Creative Portfolio 2024', size: 'large', alignment: 'center' } }, style: {}, viewport: 'both' },
+              { id: 'pr2', type: 'image', size: 'large', position: { x: 0, y: 1 }, content: { type: 'image', data: { url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800', alt: 'Work 1' } }, style: {}, viewport: 'both' },
+              { id: 'pr3', type: 'image', size: 'large', position: { x: 2, y: 1 }, content: { type: 'image', data: { url: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800', alt: 'Work 2' } }, style: {}, viewport: 'both' }
+            ];
+            break;
+          case 'business':
+            page.widgets = [
+              { id: 'b1', type: 'video', size: 'wide', position: { x: 0, y: 0 }, content: { type: 'video', data: { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', title: 'Product Demo' } }, style: {}, viewport: 'both' },
+              { id: 'b2', type: 'link', size: 'medium', position: { x: 0, y: 1 }, content: { type: 'link', data: { url: 'https://stripe.com', title: 'Payment', description: 'Secure checkout' } }, style: {}, viewport: 'both' },
+              { id: 'b3', type: 'social', size: 'medium', position: { x: 2, y: 1 }, content: { type: 'social', data: { platform: 'linkedin', username: 'company', label: 'LinkedIn' } }, style: { backgroundColor: '#0077b5', textColor: '#fff' }, viewport: 'both' }
+            ];
+            break;
+          case 'linktree':
+            page.widgets = [
+              { id: 'l1', type: 'link', size: 'wide', position: { x: 0, y: 0 }, content: { type: 'link', data: { url: '#', title: 'My Website', description: '' } }, style: {}, viewport: 'both' },
+              { id: 'l2', type: 'link', size: 'wide', position: { x: 0, y: 1 }, content: { type: 'link', data: { url: '#', title: 'Latest Blog Post', description: '' } }, style: {}, viewport: 'both' },
+              { id: 'l3', type: 'link', size: 'wide', position: { x: 0, y: 2 }, content: { type: 'link', data: { url: '#', title: 'Join the Newsletter', description: '' } }, style: {}, viewport: 'both' }
+            ];
+            break;
+          case 'creative':
+            page.widgets = [
+              { id: 'c1', type: 'text', size: 'large', position: { x: 0, y: 0 }, content: { type: 'text', data: { content: 'Think\nDifferently', size: 'large', alignment: 'center' } }, style: { backgroundColor: '#000', textColor: '#fff' }, viewport: 'both' },
+              { id: 'c2', type: 'image', size: 'small', position: { x: 2, y: 0 }, content: { type: 'image', data: { url: 'https://images.unsplash.com/photo-1515405299443-f71bb798c14e?w=200', alt: 'Art' } }, style: { borderRadius: 48 }, viewport: 'both' },
+              { id: 'c3', type: 'video', size: 'medium', position: { x: 2, y: 1 }, content: { type: 'video', data: { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', title: 'Art in Motion' } }, style: {}, viewport: 'both' }
+            ];
+            break;
+        }
+        set({ page, selectedWidgetId: null, isDirty: true });
+      },
     }),
     {
       name: 'zento-editor',

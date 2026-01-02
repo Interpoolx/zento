@@ -6,7 +6,7 @@ import { generateId } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { 
   Plus, Layout, Smartphone, Monitor, Eye, Save, 
-  Trash2, Copy, Palette, Link2,
+  Trash2, Copy, Palette, Link2, ArrowLeft,
   Image, Type, Video, Share2, MoreHorizontal
 } from 'lucide-react';
 import { Button, Input, Tabs } from '@/components/ui';
@@ -171,10 +171,19 @@ interface SidebarProps {
 
 function Sidebar({ onAddWidget }: SidebarProps) {
   const [activeTab, setActiveTab] = useState('widgets');
+  const { loadTemplate } = useEditorStore();
 
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: <Layout className="w-4 h-4" /> },
     { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
+  ];
+
+  const templates = [
+    { id: 'personal', name: 'Personal', color: 'bg-blue-100' },
+    { id: 'portfolio', name: 'Portfolio', color: 'bg-purple-100' },
+    { id: 'business', name: 'Business', color: 'bg-green-100' },
+    { id: 'linktree', name: 'Linktree', color: 'bg-orange-100' },
+    { id: 'creative', name: 'Creative', color: 'bg-pink-100' },
   ];
 
   return (
@@ -191,22 +200,22 @@ function Sidebar({ onAddWidget }: SidebarProps) {
         {activeTab === 'widgets' && (
           <div className="p-4 space-y-6">
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Add Widget</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Add Widget</h3>
               <div className="grid grid-cols-2 gap-2">
                 {(Object.keys(WIDGET_TEMPLATES) as WidgetType[]).map((type) => (
                   <button
                     key={type}
                     onClick={() => onAddWidget(type)}
                     className={cn(
-                      'flex items-center gap-2 p-3 rounded-lg border border-gray-200',
+                      'flex items-center gap-2 p-3 rounded-xl border border-gray-100',
                       'hover:border-primary-500 hover:bg-primary-50',
                       'transition-all duration-200 group'
                     )}
                   >
-                    <div className="text-gray-500 group-hover:text-primary-600">
+                    <div className="text-gray-400 group-hover:text-primary-600">
                       {WIDGET_ICONS[type]}
                     </div>
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-primary-700">
+                    <span className="text-xs font-semibold text-gray-700 group-hover:text-primary-700">
                       {WIDGET_LABELS[type]}
                     </span>
                   </button>
@@ -215,27 +224,23 @@ function Sidebar({ onAddWidget }: SidebarProps) {
             </div>
 
             <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Add</h3>
-              <div className="space-y-2">
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center text-primary-600">
-                    <Plus className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">Blank Page</p>
-                    <p className="text-xs text-gray-500">Start from scratch</p>
-                  </div>
-                </button>
-
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all">
-                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                    <Copy className="w-5 h-5" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">From Template</p>
-                    <p className="text-xs text-gray-500">Choose a starter layout</p>
-                  </div>
-                </button>
+              <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Templates</h3>
+              <div className="grid grid-cols-1 gap-2">
+                {templates.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => loadTemplate(template.id)}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-primary-500 hover:bg-primary-50 transition-all group text-left"
+                  >
+                    <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-gray-600 group-hover:text-primary-600 transition-colors", template.color)}>
+                      <Layout className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{template.name}</p>
+                      <p className="text-[10px] text-gray-400">Load preset layout</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -572,35 +577,77 @@ export function Editor() {
 
   if (isPreviewMode) {
     return (
-      <div className="h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className={cn(
-            'mx-auto bg-white shadow-2xl overflow-hidden transition-all duration-300',
-            isMobileView ? 'w-[375px] h-[667px]' : 'w-[1200px] h-[800px]'
-          )}>
-            <div 
-              className="h-full overflow-auto"
-              style={{
-                background: page.style.backgroundGradient || page.style.backgroundColor,
-              }}
+      <div className="h-screen bg-gray-50 flex flex-col">
+        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+             <button
+              onClick={() => setPreviewMode(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
             >
-              <div className="p-8">
-                <div className="grid gap-4" style={{
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <span className="text-sm font-semibold">Preview Mode</span>
+          </div>
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setMobileView(false)}
+              className={cn(
+                'p-2 rounded-md transition-all',
+                !isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setMobileView(true)}
+              className={cn(
+                'p-2 rounded-md transition-all',
+                isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+          </div>
+          <Button onClick={() => setPreviewMode(false)}>Edit Page</Button>
+        </header>
+
+        <div className="flex-1 overflow-auto bg-gray-50 p-4 md:p-8 flex items-start justify-center">
+          <div 
+            className={cn(
+              'bg-white shadow-2xl transition-all duration-500 ease-in-out origin-top',
+              isMobileView 
+                ? 'w-[375px] h-fit min-h-[667px] rounded-[48px] ring-[12px] ring-gray-900 overflow-hidden' 
+                : 'w-full max-w-[1200px] rounded-[32px] overflow-visible'
+            )}
+            style={{
+              background: page.style.backgroundGradient || page.style.backgroundColor,
+            }}
+          >
+            <div className={cn("p-6 md:p-12", isMobileView ? "pt-12" : "")}>
+              <div 
+                className="grid gap-4 mx-auto" 
+                style={{
                   gridTemplateColumns: `repeat(${isMobileView ? 2 : page.layout.columns}, 1fr)`,
-                }}>
-                  {page.widgets.map((widget) => (
-                    <WidgetRenderer key={widget.id} widget={widget} />
-                  ))}
-                </div>
+                }}
+              >
+                {page.widgets.map((widget) => {
+                  const dims = WIDGET_SIZES[widget.size];
+                  const mobileWidth = dims.width === 4 ? 2 : dims.width * 2 > 2 ? 2 : dims.width * 2;
+                  return (
+                    <div 
+                      key={widget.id}
+                      style={{
+                        gridColumn: `span ${isMobileView ? mobileWidth : dims.width}`,
+                        gridRow: `span ${dims.height}`,
+                      }}
+                    >
+                      <WidgetRenderer widget={widget} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setPreviewMode(false)}
-            className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-          >
-            Exit Preview
-          </button>
         </div>
       </div>
     );
