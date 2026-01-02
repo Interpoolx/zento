@@ -97,7 +97,7 @@ function SortableWidget({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'relative overflow-hidden bg-gray-950 w-full group/video transition-all duration-500',
+        'relative transition-all duration-500',
         selectedWidgetId === widget.id && 'ring-2 ring-primary-500/20',
         !isDragging && 'hover:scale-[1.02] cursor-grab active:cursor-grabbing'
       )}
