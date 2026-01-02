@@ -44,10 +44,10 @@ export function LinkWidget({ content, style, isEditing, onClick }: LinkWidgetPro
                   </div>
                 )}
               </div>
-              <h4 className="font-bold text-gray-900 truncate text-lg tracking-tight leading-none">{content.title}</h4>
+              <h4 className="font-bold text-inherit truncate text-lg tracking-tight leading-none">{content.title}</h4>
             </div>
             {content.description && (
-              <p className="text-sm text-gray-500/80 font-medium line-clamp-2 leading-relaxed">{content.description}</p>
+              <p className="text-sm opacity-70 font-medium line-clamp-2 leading-relaxed">{content.description}</p>
             )}
           </div>
           <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
