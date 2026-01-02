@@ -27,22 +27,23 @@ export function VideoWidget({ content, style, isEditing, onClick }: VideoWidgetP
   };
 
   const isYouTube = content.url.includes('youtube') || content.url.includes('youtu.be');
+  const isVimeo = content.url.includes('vimeo');
   const embedUrl = getEmbedUrl(content.url);
 
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-gray-900',
+        'relative overflow-hidden bg-gray-900 w-full h-full',
         isEditing && 'ring-2 ring-primary-500'
       )}
       style={style}
       onClick={onClick}
     >
-      {isYouTube ? (
+      {(isYouTube || isVimeo) ? (
         <iframe
           src={embedUrl}
           title={content.title || 'Video'}
-          className="w-full h-full absolute inset-0"
+          className="w-full h-full absolute inset-0 pointer-events-none"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

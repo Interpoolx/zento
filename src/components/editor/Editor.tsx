@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEditorStore } from '@/store/editorStore';
 import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';
 import { WIDGET_TEMPLATES, WIDGET_SIZES } from '@/lib/widget-registry';
@@ -49,7 +50,7 @@ function Canvas({ isMobile }: CanvasProps) {
     const dims = WIDGET_SIZES[size];
     if (isMobile) {
       return {
-        width: dims.width === 4 ? columns : dims.width * 2,
+        width: dims.width === 4 ? columns : dims.width * 2 > columns ? columns : dims.width * 2,
         height: dims.height,
       };
     }
@@ -62,7 +63,6 @@ function Canvas({ isMobile }: CanvasProps) {
   const handleDragStart = (e: React.DragEvent, widgetId: string) => {
     e.dataTransfer.setData('widgetId', widgetId);
     e.dataTransfer.effectAllowed = 'move';
-    // Add a class for visual feedback
     const element = e.currentTarget as HTMLElement;
     element.classList.add('opacity-40');
   };
@@ -97,69 +97,77 @@ function Canvas({ isMobile }: CanvasProps) {
       onClick={() => selectWidget(null)}
     >
       <div className="mx-auto" style={{ maxWidth }}>
-        <div 
-          className={cn(
-            'mx-auto transition-all duration-300 min-h-[600px]',
-            'bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden'
-          )}
-          style={{ 
-            maxWidth: '100%',
-            padding: isMobile ? '16px' : '40px',
-            background: page.style.backgroundGradient || page.style.backgroundColor,
-          }}
-        >
-          <div 
-            className="grid mx-auto"
-            style={{
-              gridTemplateColumns: `repeat(${columns}, ${columnWidth}px)`,
-              columnGap: `${columnGap}px`,
-              rowGap: `${rowGap}px`,
+        <AnimatePresence mode="popLayout">
+          <motion.div 
+            layout
+            className={cn(
+              'mx-auto transition-all duration-300 min-h-[600px]',
+              'bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden'
+            )}
+            style={{ 
+              maxWidth: '100%',
+              padding: isMobile ? '16px' : '40px',
+              background: page.style.backgroundGradient || page.style.backgroundColor,
             }}
           >
-            {page.widgets.map((widget, index) => {
-              const dimensions = getWidgetDimensions(widget.size);
-              return (
-                <div
-                  key={widget.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, widget.id)}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDrop(e, index)}
-                  className={cn(
-                    'relative transition-all duration-300 group',
-                    'hover:scale-[1.01]',
-                    'active:scale-[0.99]'
-                  )}
-                  style={{
-                    gridColumn: `span ${dimensions.width}`,
-                    gridRow: `span ${dimensions.height}`,
-                  }}
-                >
-                  <WidgetRenderer
-                    widget={widget}
-                    isEditing={true}
-                    isSelected={selectedWidgetId === widget.id}
-                    onSelect={() => selectWidget(widget.id)}
-                  />
-                  {selectedWidgetId === widget.id && (
-                    <div className="absolute -top-2 -right-2 flex gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeWidget(widget.id);
-                        }}
-                        className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+            <motion.div 
+              layout
+              className="grid mx-auto"
+              style={{
+                gridTemplateColumns: `repeat(${columns}, ${columnWidth}px)`,
+                columnGap: `${columnGap}px`,
+                rowGap: `${rowGap}px`,
+              }}
+            >
+              {page.widgets.map((widget, index) => {
+                const dimensions = getWidgetDimensions(widget.size);
+                return (
+                  <motion.div
+                    key={widget.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, widget.id)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, index)}
+                    className={cn(
+                      'relative transition-all group',
+                      'hover:scale-[1.02] cursor-grab active:cursor-grabbing'
+                    )}
+                    style={{
+                      gridColumn: `span ${dimensions.width}`,
+                      gridRow: `span ${dimensions.height}`,
+                    }}
+                  >
+                    <WidgetRenderer
+                      widget={widget}
+                      isEditing={true}
+                      isSelected={selectedWidgetId === widget.id}
+                      onSelect={() => selectWidget(widget.id)}
+                    />
+                    {selectedWidgetId === widget.id && (
+                      <div className="absolute -top-2 -right-2 flex gap-1 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeWidget(widget.id);
+                          }}
+                          className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
