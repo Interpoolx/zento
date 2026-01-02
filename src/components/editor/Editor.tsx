@@ -47,8 +47,9 @@ function Canvas({ isMobile }: CanvasProps) {
   const rowGap = page.layout.rowGap;
   const maxWidth = isMobile ? 320 : page.layout.maxWidth;
 
-  const getWidgetDimensions = (size: WidgetSizeKey) => {
-    const dims = WIDGET_SIZES[size];
+  const getWidgetDimensions = (size: string) => {
+    const sizeKey = size as WidgetSizeKey;
+    const dims = WIDGET_SIZES[sizeKey] || WIDGET_SIZES.medium;
     if (isMobile) {
       return {
         width: dims.width === 4 ? columns : dims.width * 2 > columns ? columns : dims.width * 2,
@@ -186,11 +187,14 @@ function Sidebar({ onAddWidget }: SidebarProps) {
   ];
 
   const templates = [
-    { id: 'personal', name: 'Personal', color: 'bg-blue-100' },
-    { id: 'portfolio', name: 'Portfolio', color: 'bg-purple-100' },
-    { id: 'business', name: 'Business', color: 'bg-green-100' },
-    { id: 'linktree', name: 'Linktree', color: 'bg-orange-100' },
-    { id: 'creative', name: 'Creative', color: 'bg-pink-100' },
+    { id: 'personal', name: '👤 Personal', color: 'bg-blue-100' },
+    { id: 'portfolio', name: '🎨 Portfolio', color: 'bg-gray-100' },
+    { id: 'business', name: '💼 Business Pro', color: 'bg-blue-200' },
+    { id: 'linktree', name: '🔗 Link Hub', color: 'bg-pink-100' },
+    { id: 'creative', name: '✨ Artist', color: 'bg-purple-100' },
+    { id: 'ronaldo', name: '⚽ Ronaldo', color: 'bg-yellow-100' },
+    { id: 'taylor', name: '💜 Taylor Swift', color: 'bg-pink-200' },
+    { id: 'elon', name: '🚀 Elon Musk', color: 'bg-green-100' },
   ];
 
   return (
