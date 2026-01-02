@@ -10,13 +10,13 @@ const defaultLayout: PageLayout = {
 };
 
 const defaultStyle: PageStyle = {
-  backgroundColor: '#f8fafc',
-  backgroundGradient: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+  backgroundColor: '#ffffff',
+  backgroundGradient: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
   fontFamily: 'Inter',
-  fontColor: '#1e293b',
+  fontColor: '#0f172a',
   buttonStyle: 'rounded',
   widgetBackground: '#ffffff',
-  widgetBorderRadius: 12,
+  widgetBorderRadius: 24,
 };
 
 const createDefaultPage = (): Page => ({

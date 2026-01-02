@@ -62,6 +62,14 @@ function Canvas({ isMobile }: CanvasProps) {
   const handleDragStart = (e: React.DragEvent, widgetId: string) => {
     e.dataTransfer.setData('widgetId', widgetId);
     e.dataTransfer.effectAllowed = 'move';
+    // Add a class for visual feedback
+    const element = e.currentTarget as HTMLElement;
+    element.classList.add('opacity-40');
+  };
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    const element = e.currentTarget as HTMLElement;
+    element.classList.remove('opacity-40');
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -74,7 +82,7 @@ function Canvas({ isMobile }: CanvasProps) {
     const draggedId = e.dataTransfer.getData('widgetId');
     const draggedIndex = page.widgets.findIndex(w => w.id === draggedId);
     
-    if (draggedIndex === -1) return;
+    if (draggedIndex === -1 || draggedIndex === targetIndex) return;
 
     const widgets = [...page.widgets];
     const [draggedWidget] = widgets.splice(draggedIndex, 1);
@@ -85,22 +93,23 @@ function Canvas({ isMobile }: CanvasProps) {
 
   return (
     <div 
-      className="flex-1 overflow-auto bg-gray-100 p-8"
+      className="flex-1 overflow-auto bg-[#f8fafc] p-8"
       onClick={() => selectWidget(null)}
     >
       <div className="mx-auto" style={{ maxWidth }}>
         <div 
           className={cn(
-            'mx-auto transition-all duration-300',
-            'bg-white shadow-xl rounded-2xl overflow-hidden'
+            'mx-auto transition-all duration-300 min-h-[600px]',
+            'bg-white shadow-[0_0_50px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden'
           )}
           style={{ 
             maxWidth: '100%',
-            padding: isMobile ? '12px' : '24px',
+            padding: isMobile ? '16px' : '40px',
+            background: page.style.backgroundGradient || page.style.backgroundColor,
           }}
         >
           <div 
-            className="grid gap-4 mx-auto"
+            className="grid mx-auto"
             style={{
               gridTemplateColumns: `repeat(${columns}, ${columnWidth}px)`,
               columnGap: `${columnGap}px`,
@@ -114,12 +123,13 @@ function Canvas({ isMobile }: CanvasProps) {
                   key={widget.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, widget.id)}
+                  onDragEnd={handleDragEnd}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, index)}
                   className={cn(
-                    'relative transition-transform duration-200',
-                    'hover:scale-[1.02]',
-                    'active:scale-[0.98]'
+                    'relative transition-all duration-300 group',
+                    'hover:scale-[1.01]',
+                    'active:scale-[0.99]'
                   )}
                   style={{
                     gridColumn: `span ${dimensions.width}`,

@@ -16,14 +16,14 @@ interface WidgetRendererProps {
 
 export function WidgetRenderer({ widget, isEditing, isSelected, onSelect }: WidgetRendererProps) {
   const baseStyle: React.CSSProperties = {
-    borderRadius: widget.style.borderRadius ?? 12,
+    borderRadius: widget.style.borderRadius ?? 24,
     backgroundColor: widget.style.backgroundColor ?? '#ffffff',
     color: widget.style.textColor ?? 'inherit',
     borderColor: widget.style.borderColor,
     boxShadow: widget.style.shadow === 'none' ? 'none' : 
-               widget.style.shadow === 'small' ? '0 1px 3px rgba(0,0,0,0.1)' :
-               widget.style.shadow === 'medium' ? '0 4px 6px rgba(0,0,0,0.1)' :
-               widget.style.shadow === 'large' ? '0 10px 15px rgba(0,0,0,0.1)' : undefined,
+               widget.style.shadow === 'small' ? '0 1px 2px rgba(0,0,0,0.05)' :
+               widget.style.shadow === 'medium' ? '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02)' :
+               widget.style.shadow === 'large' ? '0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02)' : undefined,
   };
 
   const renderContent = () => {
