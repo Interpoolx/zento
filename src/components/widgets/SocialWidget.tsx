@@ -57,6 +57,16 @@ const socialColors: Record<string, string> = {
   website: '#6366f1',
 };
 
+/**
+ * Widget component for displaying social media profile links.
+ * Shows platform icon with customizable colors and hover animations.
+ * @param props - Component props
+ * @param props.content - Social link configuration including platform, username, and label
+ * @param props.style - Optional inline styles
+ * @param props.isEditing - Whether the widget is in edit mode
+ * @param props.onClick - Optional click handler for edit mode
+ * @returns Social media link widget with platform-specific icon
+ */
 export function SocialWidget({ content, style, isEditing, onClick }: SocialWidgetProps) {
   const platformColor = socialColors[content.platform] || '#6366f1';
   const icon = socialIcons[content.platform] || socialIcons.website;

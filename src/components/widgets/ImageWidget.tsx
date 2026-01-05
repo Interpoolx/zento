@@ -9,6 +9,22 @@ interface ImageWidgetProps {
   onClick?: () => void;
 }
 
+/**
+ * Image widget component displaying an image with optional caption and clickable link.
+ * Includes hover zoom effect and gradient caption overlay.
+ *
+ * @param props - Image content and styling properties
+ * @returns Styled image widget
+ *
+ * @example
+ * <ImageWidget
+ *   content={{
+ *     url: 'image.jpg',
+ *     alt: 'Alt text',
+ *     caption: 'Image caption'
+ *   }}
+ * />
+ */
 export function ImageWidget({ content, style, isEditing, onClick }: ImageWidgetProps) {
   return (
     <div

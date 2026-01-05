@@ -3,8 +3,13 @@ import { Editor } from '@/components/editor/Editor';
 import { Button, Card } from '@/components/ui';
 import { Layout, Zap, ArrowRight, Palette, Globe, Github, Twitter, ExternalLink } from 'lucide-react';
 
+/**
+ * Landing page component showcasing Zento's features and benefits.
+ * Provides entry points to sign in or start creating a profile page.
+ *
+ * @returns Landing page with feature showcase and CTAs
+ */
 function LandingPage() {
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <header className="border-b border-gray-200 bg-white">
@@ -144,6 +149,12 @@ function LandingPage() {
   );
 }
 
+/**
+ * Root application component setting up routing between landing page and editor.
+ * Provides navigation between marketing and builder interfaces.
+ *
+ * @returns Application with routing configuration
+ */
 function App() {
   return (
     <BrowserRouter>

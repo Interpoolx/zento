@@ -9,6 +9,16 @@ interface TextWidgetProps {
   onClick?: () => void;
 }
 
+/**
+ * Widget component for displaying text content with configurable size and alignment.
+ * Supports small, medium, and large text sizes with left, center, or right alignment.
+ * @param props - Component props
+ * @param props.content - Text configuration including content, size, and alignment
+ * @param props.style - Optional inline styles
+ * @param props.isEditing - Whether the widget is in edit mode
+ * @param props.onClick - Optional click handler for edit mode
+ * @returns Text display widget with customizable styling
+ */
 export function TextWidget({ content, style, isEditing, onClick }: TextWidgetProps) {
   const alignmentClasses = {
     left: 'text-left',

@@ -9,7 +9,93 @@ interface LinkWidgetProps {
   onClick?: () => void;
 }
 
+/**
+ * Link widget component displaying an interactive card with favicon, title, description, and preview image.
+ * Perfect for linking to external sites, portfolios, or resources directly from a profile page.
+ *
+ * Features:
+ * - Automatic favicon extraction from URL (via Google's favicon service)
+ * - Displays title and optional description with ellipsis handling
+ * - Optional preview image with hover zoom effect
+ * - Arrow icon reveals on hover for visual feedback
+ * - Smooth transitions and hover animations
+ * - Edit mode styling when building/modifying
+ *
+ * Content structure:
+ * - `title`: Display name for the link (e.g., "My Portfolio")
+ * - `description`: Optional subtitle/tagline
+ * - `url`: Target URL (required)
+ * - `imageUrl`: Optional preview image
+ *
+ * Common use cases:
+ * - Portfolio links on profile pages
+ * - Social media or external site links
+ * - Resource/download links
+ * - Call-to-action cards
+ *
+ * @param props - Link widget configuration
+ * @param props.content - Link content data including URL, title, description
+ * @param props.content.url - Target URL (used to extract favicon and for clicks)
+ * @param props.content.title - Display text for the link
+ * @param props.content.description - Optional subtitle/description text
+ * @param props.content.imageUrl - Optional preview image URL
+ * @param props.style - CSS properties for styling (colors, shadows, border radius)
+ * @param props.isEditing - Whether widget is in edit mode (shows border, cursor changes)
+ * @param props.onClick - Callback when widget is clicked (for editor selection)
+ * @returns Styled link card with favicon, title, description, and optional image
+ *
+ * @example
+ * // Simple link card
+ * <LinkWidget
+ *   content={{
+ *     url: 'https://github.com',
+ *     title: 'My GitHub Profile',
+ *     description: 'Check out my projects'
+ *   }}
+ * />
+ *
+ * @example
+ * // Link with preview image and custom styling
+ * <LinkWidget
+ *   content={{
+ *     url: 'https://myportfolio.com',
+ *     title: '💼 Portfolio Website',
+ *     description: 'View my design work and case studies',
+ *     imageUrl: 'https://myportfolio.com/preview.jpg'
+ *   }}
+ *   style={{
+ *     backgroundColor: '#3b82f6',
+ *     textColor: '#ffffff',
+ *     borderRadius: 16,
+ *     shadow: 'large'
+ *   }}
+ * />
+ *
+ * @example
+ * // In page template
+ * const linkContent = WIDGET_TEMPLATES['link'].content.data;
+ * <div className="grid grid-cols-2 gap-4">
+ *   <LinkWidget
+ *     content={linkContent}
+ *     isEditing={isEditingPage}
+ *     onSelect={() => selectWidget(widgetId)}
+ *   />
+ * </div>
+ *
+ * @note The component fetches favicons automatically from Google's favicon service
+ * @note If favicon fails to load, displays first letter of title as fallback
+ * @note Description text is limited to 2 lines with ellipsis
+ * @note The widget is fully responsive and adapts to container size
+ *
+ * @see LinkWidgetContent type for content structure
+ * @see WIDGET_TEMPLATES for preset configurations
+ */
 export function LinkWidget({ content, style, isEditing, onClick }: LinkWidgetProps) {
+  /**
+   * Extracts the favicon URL from a given website URL using Google's favicon service.
+   * @param url - The website URL to extract favicon from
+   * @returns The favicon URL or undefined if URL parsing fails
+   */
   const getFavicon = (url: string) => {
     try {
       const domain = new URL(url).hostname;

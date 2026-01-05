@@ -9,6 +9,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      mainFields: ['module', 'main'],
+    },
+  },
   server: {
     port: 5000,
     host: '0.0.0.0',
