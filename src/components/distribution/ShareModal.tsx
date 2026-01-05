@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useDistributionStore } from '@/store/distributionStore';
 import { cn } from '@/lib/utils';
-import { Copy, Check, Twitter, Facebook, Linkedin, Mail, MessageCircle, Share2 } from 'lucide-react';
+import { Copy, Check, Twitter, Facebook, Linkedin, Mail, MessageCircle, Share2, Download } from 'lucide-react';
+import { useEditorStore } from '@/store/editorStore';
+import { downloadPageAsHTML } from '@/lib/exportUtils';
 import type { ShareLink } from '@/types';
 
 interface ShareModalProps {
@@ -23,6 +25,7 @@ interface ShareModalProps {
  */
 export function ShareModal({ pageId, pageTitle, isOpen, onClose }: ShareModalProps) {
   const { createShareLink, getShareLinks, trackShareClick } = useDistributionStore();
+  const { page } = useEditorStore();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const shareLinks = getShareLinks(pageId);
 
@@ -144,6 +147,23 @@ export function ShareModal({ pageId, pageTitle, isOpen, onClose }: ShareModalPro
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Export & Offline */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">Offline Access</label>
+            <button
+              onClick={() => downloadPageAsHTML(page)}
+              className="w-full p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all flex flex-col items-center gap-2 group"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-primary-100 transition-colors">
+                <Download className="w-5 h-5 text-gray-600 group-hover:text-primary-600" />
+              </div>
+              <div className="text-center">
+                <p className="font-bold text-gray-900">Export as HTML</p>
+                <p className="text-xs text-gray-500">Download a standalone version of your page</p>
+              </div>
+            </button>
           </div>
 
           {/* Share Stats */}

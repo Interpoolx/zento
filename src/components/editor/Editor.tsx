@@ -10,22 +10,23 @@ import {
   Trash2, Palette, Link2, ArrowLeft,
   Image, Type, Video, Share2, MoreHorizontal,
   Undo2, Redo2, Copy, Clipboard, CopyPlus,
-  Settings, TrendingUp
+  Settings, TrendingUp, MessageSquare, Globe, Settings2, Sparkles, ChevronDown
 } from 'lucide-react';
 import { Button, Input, Tabs } from '@/components/ui';
 import { ColorPicker } from '@/components/editors/ColorPicker';
 import { OpacitySlider } from '@/components/editors/OpacitySlider';
 import { SizePresetPicker } from '@/components/editors/SizePresetPicker';
-import { BackgroundImagePicker } from '@/components/editors/BackgroundImagePicker';
 import { ThemePicker } from '@/components/editors/ThemePicker';
 import { FontPicker, SYSTEM_FONTS } from '@/components/editors/FontPicker';
 import { CSSVariablesEditor } from '@/components/editors/CSSVariablesEditor';
 import { generateAllCSSVariables } from '@/lib/cssVariablesGenerator';
-import { useThemeStore, getTheme, getCurrentTheme } from '@/store/themeStore';
+import { useThemeStore, getCurrentTheme } from '@/store/themeStore';
 import { PublishSettings } from '@/components/distribution/PublishSettings';
 import { SEOSettings } from '@/components/distribution/SEOSettings';
 import { AnalyticsDashboard } from '@/components/distribution/AnalyticsDashboard';
 import { ShareModal } from '@/components/distribution/ShareModal';
+import { PageStats } from '@/components/social/PageStats';
+import { PageComments } from '@/components/social/PageComments';
 import type { Widget, WidgetType } from '@/types';
 import type { WidgetSizeKey } from '@/lib/widget-registry';
 import {
@@ -101,13 +102,6 @@ interface SortableWidgetProps {
   getWidgetDimensions: (size: string) => { width: number; height: number };
 }
 
-/**
- * Draggable widget component for the editor canvas.
- * Provides drag-and-drop functionality with selection and deletion controls.
- *
- * @param props - Widget and editor state properties
- * @returns Draggable widget element with controls
- */
 function SortableWidget({
   widget,
   isMobile: _isMobile,
@@ -187,13 +181,6 @@ function SortableWidget({
   );
 }
 
-/**
- * Canvas component displaying the editor grid with draggable widgets.
- * Handles responsive layout, drag-and-drop reordering, and preview rendering.
- *
- * @param props - Canvas configuration including mobile viewport flag
- * @returns Canvas element with grid layout and drag context
- */
 function Canvas({ isMobile }: CanvasProps) {
   const { page, selectedWidgetId, selectWidget, removeWidget, reorderWidgets } = useEditorStore();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -210,16 +197,10 @@ function Canvas({ isMobile }: CanvasProps) {
   );
 
   const columns = isMobile ? 2 : page.layout.columns;
-  // const columnWidth = isMobile ? 160 : 180; // Adjusted for better fit
   const columnGap = page.layout.columnGap;
   const rowGap = page.layout.rowGap;
   const maxWidth = isMobile ? 320 : page.layout.maxWidth;
 
-  /**
-   * Calculates widget grid dimensions based on size preset and viewport mode.
-   * @param size - The widget size preset name
-   * @returns Object with width and height in grid units
-   */
   const getWidgetDimensions = (size: string) => {
     const sizeKey = size as WidgetSizeKey;
     const dims = WIDGET_SIZES[sizeKey] || WIDGET_SIZES.medium;
@@ -235,18 +216,10 @@ function Canvas({ isMobile }: CanvasProps) {
     };
   };
 
-  /**
-   * Handles the start of a drag operation on a widget.
-   * @param event - The drag start event from dnd-kit
-   */
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id);
   };
 
-  /**
-   * Handles the end of a drag operation and reorders widgets if needed.
-   * @param event - The drag end event from dnd-kit
-   */
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     setActiveId(null);
@@ -321,7 +294,7 @@ function Canvas({ isMobile }: CanvasProps) {
                 {activeWidget ? (
                   <div
                     style={{
-                      width: getWidgetDimensions(activeWidget.size).width * (isMobile ? 150 : 200), // Approximate
+                      width: getWidgetDimensions(activeWidget.size).width * (isMobile ? 150 : 200),
                       height: getWidgetDimensions(activeWidget.size).height * 100,
                     }}
                     className="opacity-80 scale-105 pointer-events-none"
@@ -342,22 +315,16 @@ interface SidebarProps {
   onAddWidget: (type: WidgetType) => void;
 }
 
-/**
- * Sidebar component with tabs for adding widgets and customizing appearance.
- * Contains widget library, template gallery, and appearance settings.
- * @param props - Component props
- * @param props.onAddWidget - Callback fired when a widget type is selected for addition
- * @returns Sidebar panel with tabbed content
- */
 function Sidebar({ onAddWidget }: SidebarProps) {
   const [activeTab, setActiveTab] = useState('widgets');
-  const { loadTemplate, page, updatePage } = useEditorStore();
+  const { loadTemplate, page } = useEditorStore();
 
   const tabs = [
     { id: 'widgets', label: 'Widgets', icon: <Layout className="w-4 h-4" /> },
     { id: 'appearance', label: 'Appearance', icon: <Palette className="w-4 h-4" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
     { id: 'analytics', label: 'Analytics', icon: <TrendingUp className="w-4 h-4" /> },
+    { id: 'community', label: 'Community', icon: <MessageSquare className="w-4 h-4" /> },
   ];
 
   const templates = [
@@ -563,8 +530,8 @@ function Sidebar({ onAddWidget }: SidebarProps) {
               pageTitle={page.title}
               slug={page.slug}
               isPublished={page.isPublished}
-              onPublish={(slug) => updatePage({ isPublished: true, slug })}
-              onUnpublish={() => updatePage({ isPublished: false })}
+              onPublish={(slug) => useEditorStore.getState().updatePage({ isPublished: true, slug })}
+              onUnpublish={() => useEditorStore.getState().updatePage({ isPublished: false })}
             />
             <SEOSettings
               pageId={page.id}
@@ -578,6 +545,20 @@ function Sidebar({ onAddWidget }: SidebarProps) {
             <AnalyticsDashboard pageId={page.id} />
           </div>
         )}
+
+        {activeTab === 'community' && (
+          <div className="p-4 space-y-6">
+            <PageStats
+              pageId={page.id}
+              showShareButton
+              onShare={() => { }}
+            />
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="font-bold text-lg mb-4 text-gray-900">Comments</h3>
+              <PageComments pageId={page.id} currentUserId="user-1" />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -588,25 +569,12 @@ interface PropertiesPanelProps {
   onClose: () => void;
 }
 
-/**
- * Properties panel for editing the selected widget's content and style.
- * Renders different form fields based on the widget type.
- * @param props - Component props
- * @param props.isOpen - Whether the panel is visible
- * @param props.onClose - Callback to close the panel
- * @returns Properties editing panel or null if no widget is selected
- */
 function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
   const { page, selectedWidgetId, updateWidget, removeWidget } = useEditorStore();
   const selectedWidget = page.widgets.find(w => w.id === selectedWidgetId);
 
   if (!isOpen || !selectedWidget) return null;
 
-  /**
-   * Updates a specific field in the selected widget's content data.
-   * @param key - The content field key to update
-   * @param value - The new value for the field
-   */
   const handleContentUpdate = (key: string, value: any) => {
     updateWidget(selectedWidget.id, {
       content: {
@@ -619,10 +587,6 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
     });
   };
 
-  /**
-   * Renders the appropriate form fields for editing widget content based on type.
-   * @returns JSX elements for the widget type's editable fields
-   */
   const renderContentFields = () => {
     switch (selectedWidget.type) {
       case 'link': {
@@ -826,9 +790,6 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               />
               <span className="text-sm text-gray-600">Enable Lightbox</span>
             </label>
-            <p className="text-xs text-gray-500 mt-3 p-2 bg-gray-50 rounded">
-              To add/edit gallery images, click the gallery widget on canvas and add images through the UI.
-            </p>
           </div>
         );
       }
@@ -863,36 +824,12 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               label="Product Image URL"
               value={data.image || ''}
               onChange={(e) => handleContentUpdate('image', e.target.value)}
-              placeholder="https://example.com/product.jpg"
             />
             <Input
               label="Product URL"
               value={data.url || ''}
               onChange={(e) => handleContentUpdate('url', e.target.value)}
-              placeholder="https://example.com/product"
             />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Rating (0-5)</label>
-              <input
-                type="number"
-                min="0"
-                max="5"
-                step="0.5"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.rating || 0}
-                onChange={(e) => handleContentUpdate('rating', parseFloat(e.target.value))}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Number of Reviews</label>
-              <input
-                type="number"
-                min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.reviews || 0}
-                onChange={(e) => handleContentUpdate('reviews', parseInt(e.target.value))}
-              />
-            </div>
           </div>
         );
       }
@@ -905,168 +842,11 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               value={data.title || ''}
               onChange={(e) => handleContentUpdate('title', e.target.value)}
             />
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[60px]"
-                value={data.description || ''}
-                onChange={(e) => handleContentUpdate('description', e.target.value)}
-              />
-            </div>
             <Input
               label="Submit Button Text"
               value={data.submitText || 'Submit'}
               onChange={(e) => handleContentUpdate('submitText', e.target.value)}
             />
-            <Input
-              label="Success Message"
-              value={data.successMessage || 'Thank you!'}
-              onChange={(e) => handleContentUpdate('successMessage', e.target.value)}
-            />
-            <Input
-              label="Redirect URL (Optional)"
-              value={data.redirectUrl || ''}
-              onChange={(e) => handleContentUpdate('redirectUrl', e.target.value)}
-              placeholder="https://example.com/thank-you"
-            />
-            <p className="text-xs text-gray-500 mt-3 p-2 bg-gray-50 rounded">
-              To add/edit form fields, click the form widget on canvas and use the field editor.
-            </p>
-          </div>
-        );
-      }
-      case 'calendar': {
-        const data = (selectedWidget.content as any).data || {};
-        return (
-          <div className="space-y-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.showMonth !== false}
-                onChange={(e) => handleContentUpdate('showMonth', e.target.checked)}
-              />
-              <span className="text-sm text-gray-600">Show Month Header</span>
-            </label>
-            <p className="text-xs text-gray-500 mt-3 p-2 bg-gray-50 rounded">
-              To add/edit events, click the calendar widget on canvas and use the event editor.
-            </p>
-          </div>
-        );
-      }
-      case 'pdf': {
-        const data = (selectedWidget.content as any).data || {};
-        return (
-          <div className="space-y-4">
-            <Input
-              label="PDF URL"
-              value={data.url || ''}
-              onChange={(e) => handleContentUpdate('url', e.target.value)}
-              placeholder="https://example.com/document.pdf"
-            />
-            <Input
-              label="Document Title (Optional)"
-              value={data.title || ''}
-              onChange={(e) => handleContentUpdate('title', e.target.value)}
-            />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Number of Pages (Optional)</label>
-              <input
-                type="number"
-                min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.pages || ''}
-                onChange={(e) => handleContentUpdate('pages', e.target.value ? parseInt(e.target.value) : null)}
-              />
-            </div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.showPreview || false}
-                onChange={(e) => handleContentUpdate('showPreview', e.target.checked)}
-              />
-              <span className="text-sm text-gray-600">Show Preview Link</span>
-            </label>
-          </div>
-        );
-      }
-      case 'countdown': {
-        const data = (selectedWidget.content as any).data || {};
-        return (
-          <div className="space-y-4">
-            <Input
-              label="Countdown Title"
-              value={data.title || ''}
-              onChange={(e) => handleContentUpdate('title', e.target.value)}
-            />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Target Date & Time</label>
-              <input
-                type="datetime-local"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.targetDate || ''}
-                onChange={(e) => handleContentUpdate('targetDate', e.target.value)}
-              />
-            </div>
-            <Input
-              label="Expiry Message"
-              value={data.message || ''}
-              onChange={(e) => handleContentUpdate('message', e.target.value)}
-              placeholder="e.g., Offer has ended!"
-            />
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.showLabels !== false}
-                onChange={(e) => handleContentUpdate('showLabels', e.target.checked)}
-              />
-              <span className="text-sm text-gray-600">Show Time Labels</span>
-            </label>
-          </div>
-        );
-      }
-      case 'qrcode': {
-        const data = (selectedWidget.content as any).data || {};
-        return (
-          <div className="space-y-4">
-            <Input
-              label="QR Code Data/URL"
-              value={data.data || ''}
-              onChange={(e) => handleContentUpdate('data', e.target.value)}
-              placeholder="https://example.com or text data"
-            />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Size</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.size || 'medium'}
-                onChange={(e) => handleContentUpdate('size', e.target.value)}
-              >
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Error Correction Level</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.errorCorrection || 'M'}
-                onChange={(e) => handleContentUpdate('errorCorrection', e.target.value)}
-              >
-                <option value="L">Low (7%)</option>
-                <option value="M">Medium (15%)</option>
-                <option value="Q">Quartile (25%)</option>
-                <option value="H">High (30%)</option>
-              </select>
-            </div>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.includeMargin !== false}
-                onChange={(e) => handleContentUpdate('includeMargin', e.target.checked)}
-              />
-              <span className="text-sm text-gray-600">Include Margin</span>
-            </label>
           </div>
         );
       }
@@ -1075,21 +855,9 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         return (
           <div className="space-y-4">
             <Input
-              label="Video URL (YouTube/Vimeo)"
+              label="Video URL"
               value={data.url || ''}
               onChange={(e) => handleContentUpdate('url', e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
-            />
-            <Input
-              label="Title"
-              value={data.title || ''}
-              onChange={(e) => handleContentUpdate('title', e.target.value)}
-            />
-            <Input
-              label="Thumbnail URL (Optional)"
-              value={data.thumbnailUrl || ''}
-              onChange={(e) => handleContentUpdate('thumbnailUrl', e.target.value)}
-              placeholder="https://example.com/thumb.jpg"
             />
           </div>
         );
@@ -1103,22 +871,6 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
               value={data.url || ''}
               onChange={(e) => handleContentUpdate('url', e.target.value)}
             />
-            <Input
-              label="Alt Text"
-              value={data.alt || ''}
-              onChange={(e) => handleContentUpdate('alt', e.target.value)}
-            />
-            <Input
-              label="Caption (Optional)"
-              value={data.caption || ''}
-              onChange={(e) => handleContentUpdate('caption', e.target.value)}
-            />
-            <Input
-              label="Link URL (Optional)"
-              value={data.linkUrl || ''}
-              onChange={(e) => handleContentUpdate('linkUrl', e.target.value)}
-              placeholder="Make image clickable (optional)"
-            />
           </div>
         );
       }
@@ -1126,38 +878,11 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">Content</label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none min-h-[100px]"
-                value={data.content || ''}
-                onChange={(e) => handleContentUpdate('content', e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Size</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.size || 'medium'}
-                onChange={(e) => handleContentUpdate('size', e.target.value)}
-              >
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Alignment</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.alignment || 'left'}
-                onChange={(e) => handleContentUpdate('alignment', e.target.value)}
-              >
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              value={data.content || ''}
+              onChange={(e) => handleContentUpdate('content', e.target.value)}
+            />
           </div>
         );
       }
@@ -1165,31 +890,10 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Platform</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.platform || 'twitter'}
-                onChange={(e) => handleContentUpdate('platform', e.target.value)}
-              >
-                <option value="twitter">Twitter</option>
-                <option value="github">GitHub</option>
-                <option value="instagram">Instagram</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="youtube">YouTube</option>
-                <option value="dribbble">Dribbble</option>
-                <option value="website">Website</option>
-              </select>
-            </div>
             <Input
-              label="Username/Handle"
+              label="Username"
               value={data.username || ''}
               onChange={(e) => handleContentUpdate('username', e.target.value)}
-            />
-            <Input
-              label="Label"
-              value={data.label || ''}
-              onChange={(e) => handleContentUpdate('label', e.target.value)}
             />
           </div>
         );
@@ -1198,45 +902,10 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
         const data = (selectedWidget.content as any).data || {};
         return (
           <div className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Latitude</label>
-              <input
-                type="number"
-                step="0.0001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.latitude || 0}
-                onChange={(e) => handleContentUpdate('latitude', parseFloat(e.target.value))}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Longitude</label>
-              <input
-                type="number"
-                step="0.0001"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={data.longitude || 0}
-                onChange={(e) => handleContentUpdate('longitude', parseFloat(e.target.value))}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Zoom Level (1-20)</label>
-              <input
-                type="range"
-                min="1"
-                max="20"
-                className="w-full"
-                value={data.zoom || 12}
-                onChange={(e) => handleContentUpdate('zoom', parseInt(e.target.value))}
-              />
-              <span className="text-xs text-gray-600">{data.zoom || 12}</span>
-            </div>
             <Input
-              label="Location Label"
+              label="Label"
               value={data.label || ''}
               onChange={(e) => handleContentUpdate('label', e.target.value)}
-              placeholder="e.g., New York"
             />
           </div>
         );
@@ -1295,91 +964,6 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
                 style: { ...selectedWidget.style, opacity }
               })}
             />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Border Radius</label>
-              <input
-                type="range"
-                min="0"
-                max="48"
-                className="w-full"
-                value={selectedWidget.style.borderRadius ?? 24}
-                onChange={(e) => updateWidget(selectedWidget.id, {
-                  style: { ...selectedWidget.style, borderRadius: parseInt(e.target.value) }
-                })}
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Shadow</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={selectedWidget.style.shadow || 'none'}
-                onChange={(e) => updateWidget(selectedWidget.id, {
-                  style: { ...selectedWidget.style, shadow: e.target.value as any }
-                })}
-              >
-                <option value="none">None</option>
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-            <BackgroundImagePicker
-              value={selectedWidget.style.backgroundImage}
-              position={selectedWidget.style.backgroundPosition}
-              mobileImage={selectedWidget.style.mobileBackgroundImage}
-              overlay={selectedWidget.style.backgroundOverlay}
-              onChange={(config) => updateWidget(selectedWidget.id, {
-                style: { ...selectedWidget.style, ...config }
-              })}
-            />
-            <div>
-              <label className="text-xs text-gray-500 mb-1 block">Hover Effect</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                value={selectedWidget.style.hoverEffect || 'none'}
-                onChange={(e) => updateWidget(selectedWidget.id, {
-                  style: { ...selectedWidget.style, hoverEffect: e.target.value as any }
-                })}
-              >
-                <option value="none">None</option>
-                <option value="scale">Scale (Grow)</option>
-                <option value="lift">Lift (Shadow)</option>
-                <option value="rotate">Rotate (Tilt)</option>
-                <option value="brightness">Brightness (Glow)</option>
-                <option value="shadow">Shadow (Drop)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 className="text-sm font-medium text-gray-900 mb-3 uppercase tracking-wider text-[10px]">Advanced</h3>
-          <div className="space-y-3">
-            <Input
-              label="Custom CSS Class"
-              value={(selectedWidget.style as any).customClass || ''}
-              onChange={(e) => updateWidget(selectedWidget.id, {
-                style: { ...selectedWidget.style, customClass: e.target.value }
-              })}
-              placeholder="e.g., custom-class"
-            />
-            {selectedWidget.type === 'video' && (
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Aspect Ratio</label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  value={(selectedWidget.style as any).aspectRatio || '16/9'}
-                  onChange={(e) => updateWidget(selectedWidget.id, {
-                    style: { ...selectedWidget.style, aspectRatio: e.target.value }
-                  })}
-                >
-                  <option value="16/9">16:9 (Wide)</option>
-                  <option value="4/3">4:3 (Standard)</option>
-                  <option value="1/1">1:1 (Square)</option>
-                  <option value="9/16">9:16 (Vertical)</option>
-                </select>
-              </div>
-            )}
           </div>
         </div>
 
@@ -1397,76 +981,6 @@ function PropertiesPanel({ isOpen, onClose }: PropertiesPanelProps) {
   );
 }
 
-/**
- * Main editor component providing the complete drag-and-drop page builder interface.
- * This is the core interface for creating and customizing profile pages with widgets.
- *
- * Architecture & Features:
- * - **Toolbar**: Add new widgets (Link, Image, Video, Text, Social, Map, Divider)
- * - **Canvas**: Grid-based layout system with drag-to-reorder functionality
- * - **Properties Panel**: Customize widget styling, colors, shadows, borders
- * - **Preview Mode**: Desktop and mobile viewport switching
- * - **Responsive Design**: 2-column mobile layout, configurable desktop grid (default 4 cols)
- * - **Real-time Persistence**: Auto-saves state to localStorage via Zustand
- * - **Page Management**: Title editing, publish/unpublish, save/discard changes
- *
- * Layout Structure:
- * - Header: Controls for preview, mobile/desktop toggle, save, publish
- * - Left Sidebar: Widget palette for adding new components
- * - Center Canvas: Main drag-and-drop editing area
- * - Right Properties: Settings for selected widget styling
- *
- * State Management:
- * - Uses `useEditorStore` (Zustand) for all page and widget state
- * - Automatically persists to localStorage
- * - Supports multiple pages (though currently single-page focused)
- * - Tracks dirty state for unsaved changes
- *
- * Drag & Drop:
- * - Powered by @dnd-kit for accessibility
- * - Keyboard support for reordering (arrow keys)
- * - Touch support for mobile devices
- * - Visual feedback during drag (opacity, scale)
- *
- * Widget Lifecycle:
- * 1. Click widget icon in sidebar → template selected
- * 2. Widget added to canvas with default template values
- * 3. Click on canvas widget → properties panel opens
- * 4. Modify properties → widget updates in real-time
- * 5. Drag to reorder → canvas updates immediately
- * 6. Click delete button → widget removed from page
- * 7. Click Save → confirmation dialog
- * 8. Click Publish → page becomes publicly viewable
- *
- * @returns Complete editor interface with all UI sections and functionality
- *
- * @example
- * // In App.tsx route
- * <Route path="/editor" element={<Editor />} />
- *
- * @example
- * // Editor workflow from user perspective
- * // 1. User lands on editor
- * // 2. Clicks "Add Link" widget → new link card appears
- * // 3. Clicks card to select → properties panel shows
- * // 4. Edits link URL and title
- * // 5. Drags card to reposition
- * // 6. Clicks delete icon to remove
- * // 7. Clicks "Preview" to see final result
- * // 8. Switches to mobile view to check responsive
- * // 9. Clicks "Publish" to make it public
- *
- * @note Editor state is persisted to localStorage automatically
- * @note All changes are tracked for dirty state indication
- * @note Properties panel only shows when a widget is selected
- * @note Grid is responsive: 2 columns on mobile, configurable on desktop
- * @note Preview mode is read-only - use Edit button to return to edit mode
- *
- * @see Canvas component for drag-and-drop grid details
- * @see Sidebar component for widget palette
- * @see PropertiesPanel component for styling controls
- * @see useEditorStore for state management
- */
 export function Editor() {
   const [isShareModalOpen, setShareModalOpen] = useState(false);
   const { currentThemeId } = useThemeStore();
@@ -1488,20 +1002,11 @@ export function Editor() {
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts if user is typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       const isMod = e.metaKey || e.ctrlKey;
-
       if (isMod && e.key === 'z') {
         e.preventDefault();
-        if (e.shiftKey) {
-          redo();
-        } else {
-          undo();
-        }
+        e.shiftKey ? redo() : undo();
       } else if (isMod && e.key === 'y') {
         e.preventDefault();
         redo();
@@ -1509,22 +1014,19 @@ export function Editor() {
         e.preventDefault();
         copyWidget(selectedWidgetId);
       } else if (isMod && e.key === 'v') {
-        const activeElement = document.activeElement;
-        // Only paste if not in an input
-        if (!(activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement)) {
+        if (!(document.activeElement instanceof HTMLInputElement)) {
           e.preventDefault();
           pasteWidget();
         }
       } else if (e.key === 'Escape') {
         selectWidget(null);
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedWidgetId && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+        if (selectedWidgetId && !(document.activeElement instanceof HTMLInputElement)) {
           useEditorStore.getState().removeWidget(selectedWidgetId);
           selectWidget(null);
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedWidgetId, undo, redo, copyWidget, pasteWidget, selectWidget]);
@@ -1544,14 +1046,11 @@ export function Editor() {
   };
 
   const handleSave = () => {
-    console.log('Saving page:', page);
     alert('Page saved successfully!');
   };
 
   const handlePublish = () => {
-    updatePage({
-      isPublished: !page.isPublished
-    });
+    updatePage({ isPublished: !page.isPublished });
     alert(page.isPublished ? 'Page unpublished!' : 'Page published successfully!');
   };
 
@@ -1560,45 +1059,20 @@ export function Editor() {
       <div className="h-screen bg-gray-50 flex flex-col">
         <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPreviewMode(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-500"
-            >
+            <button onClick={() => setPreviewMode(false)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <span className="text-sm font-semibold">Preview Mode</span>
           </div>
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setMobileView(false)}
-              className={cn(
-                'p-2 rounded-md transition-all',
-                !isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setMobileView(true)}
-              className={cn(
-                'p-2 rounded-md transition-all',
-                isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
+            <button onClick={() => setMobileView(false)} className={cn('p-2 rounded-md', !isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500')}><Monitor className="w-4 h-4" /></button>
+            <button onClick={() => setMobileView(true)} className={cn('p-2 rounded-md', isMobileView ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500')}><Smartphone className="w-4 h-4" /></button>
           </div>
           <Button onClick={() => setPreviewMode(false)}>Edit Page</Button>
         </header>
-
         <div className="flex-1 overflow-auto bg-gray-50 p-4 md:p-8 flex items-start justify-center">
           <div
-            className={cn(
-              'bg-white shadow-2xl transition-all duration-500 ease-in-out origin-top',
-              isMobileView
-                ? 'w-[375px] h-fit min-h-[667px] rounded-[48px] ring-[12px] ring-gray-900 overflow-hidden'
-                : 'w-full max-w-[1200px] rounded-[32px] overflow-visible'
-            )}
+            className={cn('bg-white shadow-2xl rounded-[32px] overflow-hidden transition-all duration-500', isMobileView ? 'w-[375px] h-fit min-h-[667px]' : 'w-full max-w-[1200px]')}
             style={{
               background: page.style.backgroundGradient || page.style.backgroundColor,
               fontFamily: page.style.fontFamily,
@@ -1606,24 +1080,13 @@ export function Editor() {
               ...generateAllCSSVariables(getCurrentTheme(), page.style) as any,
             }}
           >
-            <div className={cn("p-6 md:p-12", isMobileView ? "pt-12" : "")}>
-              <div
-                className="grid gap-4 mx-auto"
-                style={{
-                  gridTemplateColumns: `repeat(${isMobileView ? 2 : page.layout.columns}, 1fr)`,
-                }}
-              >
+            <div className={cn("p-6 md:p-12")}>
+              <div className="grid gap-4 mx-auto" style={{ gridTemplateColumns: `repeat(${isMobileView ? 2 : page.layout.columns}, 1fr)` }}>
                 {page.widgets.map((widget) => {
                   const dims = WIDGET_SIZES[widget.size];
                   const mobileWidth = dims.width === 4 ? 2 : dims.width * 2 > 2 ? 2 : dims.width * 2;
                   return (
-                    <div
-                      key={widget.id}
-                      style={{
-                        gridColumn: `span ${isMobileView ? mobileWidth : dims.width}`,
-                        gridRow: `span ${dims.height}`,
-                      }}
-                    >
+                    <div key={widget.id} style={{ gridColumn: `span ${isMobileView ? mobileWidth : dims.width}`, gridRow: `span ${dims.height}` }}>
                       <WidgetRenderer widget={widget} />
                     </div>
                   );
@@ -1636,98 +1099,67 @@ export function Editor() {
     );
   }
 
-  function ThemeSelectorDropdown() {
-    const { currentThemeId, themes, customThemes, setCurrentTheme } = useThemeStore();
+  function PreferencesDropdown() {
+    const { themes, customThemes, setCurrentTheme, animationSpeed, setAnimationSpeed } = { ...useThemeStore(), ...useEditorStore() };
     const [isOpen, setIsOpen] = useState(false);
     const allThemes = [...themes, ...customThemes];
-    const currentTheme = getTheme(currentThemeId);
-    const { updatePage } = useEditorStore();
+    const { updatePage, page } = useEditorStore();
 
     return (
       <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          <Palette className="w-4 h-4" />
-          {currentTheme?.name || 'Theme'}
+        <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm">
+          <Settings2 className="w-4 h-4 text-primary-500" />
+          <span>Appearance</span>
+          <ChevronDown className={cn("w-3 h-3", isOpen && "rotate-180")} />
         </button>
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              {allThemes.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => {
-                    setCurrentTheme(theme.id);
-                    updatePage({
-                      style: {
-                        ...page.style,
-                        backgroundColor: theme.colors.background,
-                        backgroundGradient: '',
-                        fontColor: theme.colors.text,
-                        fontFamily: theme.typography?.fontFamily || page.style.fontFamily,
-                        widgetBorderRadius: theme.effects?.borderRadius ?? page.style.widgetBorderRadius,
-                      },
-                    });
-                    setIsOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 transition-colors"
-                >
-                  <div className="flex gap-0.5">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.colors.primary }} />
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.colors.secondary }} />
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.colors.accent }} />
-                  </div>
-                  <span className={cn('text-sm font-medium', currentThemeId === theme.id ? 'text-primary-600' : 'text-gray-700')}>
-                    {theme.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
-  function AnimationSpeedSelector() {
-    const { animationSpeed, setAnimationSpeed } = useEditorStore();
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-        >
-          <span>{animationSpeed === 'fast' ? '⚡' : animationSpeed === 'slow' ? '🐢' : '⏱️'}</span>
-          <span className="capitalize">{animationSpeed}</span>
-        </button>
-        {isOpen && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-            <div className="absolute left-0 mt-2 w-44 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              {(['slow', 'normal', 'fast'] as const).map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => {
-                    setAnimationSpeed(speed);
-                    setIsOpen(false);
-                  }}
-                  className={cn(
-                    'w-full text-left px-4 py-2.5 transition-colors flex items-center gap-3',
-                    animationSpeed === speed ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 text-gray-700'
-                  )}
-                >
-                  <span className="text-sm font-medium capitalize">
-                    {speed === 'slow' && '🐢 Slow'}
-                    {speed === 'normal' && '⏱️ Normal'}
-                    {speed === 'fast' && '⚡ Fast'}
-                  </span>
-                </button>
-              ))}
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50">
+              <div className="px-4 py-2 mb-2"><p className="text-[10px] font-black uppercase text-gray-400">Themes</p></div>
+              <div className="px-2 space-y-1 max-h-48 overflow-y-auto">
+                {allThemes.map((theme) => (
+                  <button
+                    key={theme.id}
+                    onClick={() => {
+                      setCurrentTheme(theme.id);
+                      updatePage({
+                        style: {
+                          ...page.style,
+                          backgroundColor: theme.colors.background,
+                          backgroundGradient: '',
+                          fontColor: theme.colors.text,
+                          fontFamily: theme.typography?.fontFamily || page.style.fontFamily,
+                          widgetBorderRadius: theme.effects?.borderRadius ?? page.style.widgetBorderRadius,
+                        },
+                      });
+                    }}
+                    className={cn("w-full text-left px-3 py-2 rounded-lg flex items-center justify-between", currentThemeId === theme.id ? "bg-primary-50" : "hover:bg-gray-50")}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex -space-x-1">
+                        <div className="w-4 h-4 rounded-full border border-white" style={{ backgroundColor: theme.colors.primary }} />
+                        <div className="w-4 h-4 rounded-full border border-white" style={{ backgroundColor: theme.colors.secondary }} />
+                      </div>
+                      <span className="text-xs font-bold text-gray-600">{theme.name}</span>
+                    </div>
+                    {currentThemeId === theme.id && <Sparkles className="w-3 h-3 text-primary-500" />}
+                  </button>
+                ))}
+              </div>
+              <div className="h-px bg-gray-100 my-3" />
+              <div className="px-4 py-2 mb-2"><p className="text-[10px] font-black uppercase text-gray-400">Speed</p></div>
+              <div className="px-3 flex gap-1">
+                {(['slow', 'normal', 'fast'] as const).map((speed) => (
+                  <button
+                    key={speed}
+                    onClick={() => setAnimationSpeed(speed)}
+                    className={cn("flex-1 py-2 text-xs font-bold rounded-lg capitalize", animationSpeed === speed ? "bg-primary-500 text-white" : "bg-gray-50 text-gray-500")}
+                  >
+                    {speed === 'slow' ? '🐢' : speed === 'fast' ? '⚡' : '⏱️'}
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         )}
@@ -1736,120 +1168,50 @@ export function Editor() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#f1f5f9]" data-theme={currentThemeId}>
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+    <div className="h-screen flex flex-col bg-[#f8fafc]" data-theme={currentThemeId}>
+      <header className="bg-white/90 backdrop-blur-xl border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-              <Layout className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 bg-gradient-to-br from-primary-600 to-primary-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
+              <Layout className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-black text-gray-900 tracking-tighter">Zento</span>
+            <span className="text-xl font-black text-gray-900 tracking-tighter">Zento</span>
           </div>
-          <div className="h-8 w-px bg-gray-200" />
+          <div className="h-6 w-px bg-gray-100" />
           <div className="flex items-center gap-2 group">
             <input
               type="text"
               value={page.title}
-              onChange={(e) => useEditorStore.getState().updatePage({ title: e.target.value })}
-              className="text-lg font-bold bg-transparent border-none focus:outline-none focus:ring-0 rounded px-2 py-1 -ml-2 text-gray-700 group-hover:text-gray-900 transition-colors"
+              onChange={(e) => updatePage({ title: e.target.value })}
+              className="text-base font-bold bg-transparent border-none focus:outline-none focus:ring-0 rounded px-2 py-1 -ml-2 text-gray-700 w-40"
             />
-            {page.isPublished && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                Live
-              </span>
-            )}
+            {page.isPublished && <span className="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-black uppercase rounded-full border border-green-100">Live</span>}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 bg-gray-100/50 p-1 rounded-xl border border-gray-200/50">
-            <button
-              onClick={() => useEditorStore.getState().undo()}
-              disabled={!useEditorStore.getState().historyIndex || useEditorStore.getState().historyIndex === 0}
-              className="p-2 rounded-lg hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none transition-all text-gray-600"
-              title="Undo (Cmd+Z)"
-            >
-              <Undo2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => useEditorStore.getState().redo()}
-              disabled={useEditorStore.getState().historyIndex === useEditorStore.getState().history.length - 1}
-              className="p-2 rounded-lg hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:shadow-none transition-all text-gray-600"
-              title="Redo (Cmd+Shift+Z)"
-            >
-              <Redo2 className="w-4 h-4" />
-            </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+            <button onClick={() => undo()} disabled={!useEditorStore.getState().historyIndex} className="p-1.5 rounded-lg hover:bg-white text-gray-500 disabled:opacity-20"><Undo2 className="w-3.5 h-3.5" /></button>
+            <button onClick={() => redo()} disabled={useEditorStore.getState().historyIndex === useEditorStore.getState().history.length - 1} className="p-1.5 rounded-lg hover:bg-white text-gray-500 disabled:opacity-20"><Redo2 className="w-3.5 h-3.5" /></button>
           </div>
-
-          <div className="h-6 w-px bg-gray-200" />
-
-          <button
-            onClick={() => useEditorStore.getState().pasteWidget()}
-            disabled={!useEditorStore.getState().clipboard}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-emerald-600 bg-gray-100 rounded-lg hover:bg-emerald-50 transition-colors disabled:opacity-30 disabled:hover:bg-gray-100 disabled:hover:text-gray-600"
-            title="Paste Widget (Cmd+V)"
-          >
-            <Clipboard className="w-4 h-4" />
-            Paste
-          </button>
-
-          <div className="h-6 w-px bg-gray-200" />
-
-          <ThemeSelectorDropdown />
-          <AnimationSpeedSelector />
-
-          <div className="flex items-center bg-gray-100/80 p-1.5 rounded-2xl border border-gray-200/50">
-            <button
-              onClick={() => setMobileView(false)}
-              className={cn(
-                'p-2 rounded-xl transition-all duration-300',
-                !isMobileView ? 'bg-white shadow-sm text-gray-900 scale-105' : 'text-gray-400 hover:text-gray-600'
-              )}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setMobileView(true)}
-              className={cn(
-                'p-2 rounded-xl transition-all duration-300',
-                isMobileView ? 'bg-white shadow-sm text-gray-900 scale-105' : 'text-gray-400 hover:text-gray-600'
-              )}
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
+          <button onClick={() => pasteWidget()} disabled={!useEditorStore.getState().clipboard} className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-50 rounded-xl border border-gray-100 disabled:opacity-30"><Clipboard className="w-3.5 h-3.5" />Paste</button>
+          <div className="h-6 w-px bg-gray-100" />
+          <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-100">
+            <PreferencesDropdown />
+            <div className="h-4 w-px bg-gray-200 mx-1" />
+            <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-100 p-0.5">
+              <button onClick={() => setMobileView(false)} className={cn("p-1.5 rounded-md", !isMobileView ? "bg-primary-500 text-white" : "text-gray-400")}><Monitor className="w-3.5 h-3.5" /></button>
+              <button onClick={() => setMobileView(true)} className={cn("p-1.5 rounded-md", isMobileView ? "bg-primary-500 text-white" : "text-gray-400")}><Smartphone className="w-3.5 h-3.5" /></button>
+            </div>
           </div>
-
-          <div className="h-8 w-px bg-gray-200 mx-2" />
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPreviewMode(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <Eye className="w-4 h-4" />
-              Preview
-            </button>
-            <button
-              onClick={() => setShareModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <Share2 className="w-4 h-4" />
-              Share
-            </button>
-            <Button
-              onClick={handleSave}
-              className="px-6 rounded-2xl font-bold shadow-lg shadow-primary-500/20"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
-            <Button
-              variant={page.isPublished ? 'secondary' : 'primary'}
-              onClick={handlePublish}
-              className="px-6 rounded-2xl font-bold"
-            >
-              {page.isPublished ? 'Unpublish' : 'Publish'}
-            </Button>
+          <div className="h-6 w-px bg-gray-100" />
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setPreviewMode(true)} className="p-2 text-gray-500 hover:text-primary-600 rounded-xl"><Eye className="w-5 h-5" /></button>
+            <a href="/discovery" className="p-2 text-gray-500 hover:text-primary-600 rounded-xl"><Globe className="w-5 h-5" /></a>
+            <button onClick={() => setShareModalOpen(true)} className="flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-white bg-gray-900 rounded-xl shadow-lg shadow-gray-200"><Share2 className="w-4 h-4" />Share</button>
+            <div className="h-6 w-px bg-gray-100 mx-1" />
+            <Button onClick={handleSave} className="px-5 py-1.5 rounded-xl font-bold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm"><Save className="w-4 h-4 mr-2" />Save</Button>
+            <Button onClick={handlePublish} className={cn("px-6 py-1.5 rounded-xl font-black", page.isPublished ? "bg-rose-50 text-rose-600 border border-rose-100" : "bg-primary-600 text-white shadow-xl shadow-primary-500/20")}>{page.isPublished ? 'Unpublish' : 'Publish'}</Button>
           </div>
         </div>
       </header>

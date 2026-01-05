@@ -1,7 +1,11 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Editor } from '@/components/editor/Editor';
 import { Button, Card } from '@/components/ui';
-import { Layout, Zap, ArrowRight, Palette, Globe, Github, Twitter, ExternalLink } from 'lucide-react';
+import { Layout, Zap, ArrowRight, Palette, Globe, Github, Twitter, ExternalLink, Loader2 } from 'lucide-react';
+
+// Lazy load heavy components
+const Editor = lazy(() => import('@/components/editor/Editor').then(m => ({ default: m.Editor })));
+const DiscoveryPage = lazy(() => import('@/components/discovery/DiscoveryPage').then(m => ({ default: m.DiscoveryPage })));
 
 /**
  * Landing page component showcasing Zento's features and benefits.
@@ -44,21 +48,21 @@ function LandingPage() {
               </span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Create stunning profile pages with drag-and-drop simplicity. 
-              No coding required. Share your links, showcase your work, 
+              Create stunning profile pages with drag-and-drop simplicity.
+              No coding required. Share your links, showcase your work,
               and connect with your audience.
             </p>
             <div className="flex items-center justify-center gap-4">
-               <a href="/profile">
-                 <Button size="lg">
-                   Create Your Page
-                   <ArrowRight className="w-5 h-5 ml-2" />
-                 </Button>
-               </a>
-               <Button variant="secondary" size="lg">
-                 View Examples
-               </Button>
-             </div>
+              <a href="/profile">
+                <Button size="lg">
+                  Create Your Page
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </a>
+              <Button variant="secondary" size="lg">
+                View Examples
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -111,8 +115,8 @@ function LandingPage() {
                 Join thousands of creators who trust Zento for their personal pages.
               </p>
               <a href="/profile">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-white text-primary-600 hover:bg-gray-100"
                 >
                   Get Started Free
@@ -158,10 +162,20 @@ function LandingPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/profile" element={<Editor />} />
-      </Routes>
+      <Suspense fallback={
+        <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-10 h-10 text-primary-600 animate-spin" />
+            <p className="text-sm font-medium text-gray-500">Loading Zento...</p>
+          </div>
+        </div>
+      }>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/profile" element={<Editor />} />
+          <Route path="/discovery" element={<DiscoveryPage onSelectPage={(id) => console.log('Selected page:', id)} />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
